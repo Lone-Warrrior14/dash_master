@@ -56,7 +56,7 @@ def normalize_categories(df, cat_col="Category", art_col="Article"):
     Standardize Category names:
     - KITCHENS, BATHROOM PRODUCTION, KITCHEN PRODUCTION -> KITCHEN
     - D&W variants -> DOORS & WINDOWS
-    - P- prefix -> KITCHEN PROJECT
+    - Any Article starting with 'P' (e.g. P-..., P123...) -> PROJECT
     """
     if cat_col not in df.columns:
         return df
@@ -75,10 +75,15 @@ def normalize_categories(df, cat_col="Category", art_col="Article"):
     )
     df.loc[dw_mask, cat_col] = "DOORS & WINDOWS"
 
-    # Project Kitchen Flag
-    if art_col in df.columns:
-        p_mask = df[art_col].astype(str).str.strip().str.startswith("P-")
-        df.loc[p_mask, cat_col] = "KITCHEN PROJECT"
+    # Project Classification: whatever article starts from P (case-insensitive)
+    for col in [art_col, "Article", "Article_Key", "Vendor Article No.", "VendorArticleNo."]:
+        if col in df.columns:
+            p_mask = df[col].astype(str).str.strip().str.upper().str.startswith("P")
+            df.loc[p_mask, cat_col] = "PROJECT"
+
+    # Also map legacy 'KITCHEN PROJECT' category to 'PROJECT'
+    proj_mask = df[cat_col].str.upper().isin(["KITCHEN PROJECT", "PROJECTS", "PROJECT"])
+    df.loc[proj_mask, cat_col] = "PROJECT"
 
     return df
 
@@ -102,12 +107,13 @@ def process_unified_datasets(
     file_prd=None,
     exclude_new_status=False,
     selected_category="ALL",
-    selected_country="ALL"
+    selected_country="ALL",
+    selected_status="ALL"
 ):
     """
     Main unification function. Ingests all 6 streams and produces complete KPI structures,
     chart datasets, and data tables.
-    Supports dynamic category and country slicers across all views and KPIs.
+    Supports dynamic category, country, and article status slicers across all views and KPIs.
     """
     today = pd.Timestamp.now().normalize()
     results = {
@@ -129,38 +135,55 @@ def process_unified_datasets(
             else:
                 df_tim = pd.read_excel(file_tim)
                 df_tim.columns = df_tim.columns.str.strip()
-                if "Article" in df_tim.columns:
-                    df_tim["Article_Key"] = sanitize_article(df_tim["Article"])
-                elif "Article_Key" in df_tim.columns:
-                    df_tim["Article_Key"] = sanitize_article(df_tim["Article_Key"])
-                else:
-                    df_tim["Article_Key"] = "UNKNOWN"
 
-                # Ensure common columns exist even if user file has slightly different or minimal set
-                for col_name, def_val in [
-                    ("Country", "Kuwait"), ("Category", "KITCHEN"), ("ArticleDesc", ""),
-                    ("OH Stock", 0), ("OH Value KD", 0), ("OH CBM", 0),
-                    ("Open Sales QTY", 0), ("ATP QTY", 0), ("Lead Time", 30),
-                    ("Article Status - New", "ACTIVE")
-                ]:
-                    if col_name not in df_tim.columns:
-                        df_tim[col_name] = def_val
+            if "Article" in df_tim.columns:
+                df_tim["Article_Key"] = sanitize_article(df_tim["Article"])
+            elif "Article_Key" in df_tim.columns:
+                df_tim["Article_Key"] = sanitize_article(df_tim["Article_Key"])
+            else:
+                df_tim["Article_Key"] = "UNKNOWN"
 
-                df_tim = normalize_categories(df_tim, "Category", "Article" if "Article" in df_tim.columns else "Article_Key")
+            # Ensure common columns exist even if user file has slightly different or minimal set
+            for col_name, def_val in [
+                ("Country", "Kuwait"), ("Category", "KITCHEN"), ("ArticleDesc", ""),
+                ("OH Stock", 0), ("OH Value KD", 0), ("OH CBM", 0),
+                ("Open Sales QTY", 0), ("ATP QTY", 0), ("Lead Time", 30),
+                ("Article Status - New", "ACTIVE"),
+                ("Balance Quantity (Less CCSTO)", 0), ("Balance KD Total", 0)
+            ]:
+                if col_name not in df_tim.columns:
+                    df_tim[col_name] = def_val
+
+            df_tim = normalize_categories(df_tim, "Category", "Article" if "Article" in df_tim.columns else "Article_Key")
             
             # Numeric conversion
             num_cols = [
                 'Lead Time', 'Country Sales Monthly Mean QTY', 'OH Stock',
                 'OH Value KD', 'OH CBM', 'Open Sales QTY', 'ATP QTY', 'ATP Days',
-                'Inbound Curr', 'Inbound Curr+1'
+                'Inbound Curr', 'Inbound Curr+1',
+                'Balance Quantity (Less CCSTO)', 'Balance KD Total'
             ]
             for col in num_cols:
                 if col in df_tim.columns:
                     df_tim[col] = pd.to_numeric(df_tim[col], errors='coerce').fillna(0)
 
-            # Preserve full category and country lists for UI slicers
-            all_cat_list = sorted([str(c) for c in df_tim["Category"].dropna().unique() if str(c).strip()])
+            # Preserve full category, country, and status lists for UI slicers
+            cat_candidates = [str(c).strip() for c in df_tim["Category"].dropna().unique() if str(c).strip()]
+            if "PROJECT" not in [c.upper() for c in cat_candidates]:
+                cat_candidates.append("PROJECT")
+            all_cat_list = sorted(list(set(cat_candidates)))
             all_ctry_list = sorted([str(c) for c in df_tim["Country"].dropna().unique() if str(c).strip()]) if "Country" in df_tim.columns else ["Kuwait", "Saudi Arabia"]
+            
+            # Distinct Article Lifecycle Statuses
+            status_order = ["Active", "Discontinued", "New", "Active Seasonal"]
+            found_statuses = [str(s).strip() for s in df_tim["Article Status - New"].dropna().unique() if str(s).strip() and str(s).upper() not in ["NAN", "NONE"]] if "Article Status - New" in df_tim.columns else []
+            # Order nicely according to domain convention
+            all_status_list = [s for s in status_order if any(s.upper() == fs.upper() for fs in found_statuses)]
+            for fs in found_statuses:
+                if not any(fs.upper() == s.upper() for s in all_status_list):
+                    all_status_list.append(fs)
+            if not all_status_list:
+                all_status_list = ["Active", "Discontinued", "New", "Active Seasonal"]
 
             # Save clean raw dataframe before slicer filtering for in-memory caching
             raw_df_tim = df_tim.copy()
@@ -169,13 +192,31 @@ def process_unified_datasets(
             if exclude_new_status and "Article Status - New" in df_tim.columns:
                 df_tim = df_tim[df_tim["Article Status - New"].astype(str).str.strip().str.upper() != "NEW"].copy()
 
-            # Dynamic Slicer: Category filter on TIM
-            if selected_category and selected_category != "ALL" and "Category" in df_tim.columns:
-                df_tim = df_tim[df_tim["Category"].astype(str).str.upper() == selected_category.upper()].copy()
+            # Normalize slicer selection inputs into sets of uppercase strings
+            def parse_slicer_vals(val):
+                if not val or val == "ALL":
+                    return None
+                if isinstance(val, (list, tuple, set)):
+                    items = [str(x).strip().upper() for x in val if str(x).strip()]
+                else:
+                    items = [str(x).strip().upper() for x in str(val).split(",") if str(x).strip()]
+                return set(items) if items and "ALL" not in items else None
+
+            sel_statuses = parse_slicer_vals(selected_status)
+            sel_categories = parse_slicer_vals(selected_category)
+            sel_countries = parse_slicer_vals(selected_country)
+
+            # Dynamic Slicer: Lifecycle Status filter on TIM (supports multiple selections)
+            if sel_statuses and "Article Status - New" in df_tim.columns:
+                df_tim = df_tim[df_tim["Article Status - New"].astype(str).str.strip().str.upper().isin(sel_statuses)].copy()
+
+            # Dynamic Slicer: Category filter on TIM (supports multiple selections)
+            if sel_categories and "Category" in df_tim.columns:
+                df_tim = df_tim[df_tim["Category"].astype(str).str.strip().str.upper().isin(sel_categories)].copy()
 
             # Dynamic Slicer: Country filter on TIM
-            if selected_country and selected_country != "ALL" and "Country" in df_tim.columns:
-                df_tim = df_tim[df_tim["Country"].astype(str).str.upper().str.contains(selected_country.upper())].copy()
+            if sel_countries and "Country" in df_tim.columns:
+                df_tim = df_tim[df_tim["Country"].astype(str).str.strip().str.upper().apply(lambda c: any(sc in c for sc in sel_countries))].copy()
 
             results["loaded_files"].append("TIM Master")
         except Exception as e:
@@ -205,6 +246,8 @@ def process_unified_datasets(
                     merge_cols = ["Article_Key", "Lead Time", "Category", "ArticleDesc"]
                     if "Country" in tim_source.columns:
                         merge_cols.append("Country")
+                    if "Article Status - New" in tim_source.columns:
+                        merge_cols.append("Article Status - New")
                     tim_lt = tim_source.drop_duplicates(subset=["Article_Key"])[merge_cols]
                     df_me2n = df_me2n.merge(tim_lt, on="Article_Key", how="left")
                     df_me2n["Lead Time"] = df_me2n["Lead Time"].fillna(30)
@@ -237,13 +280,17 @@ def process_unified_datasets(
 
             raw_df_me2n = df_me2n.copy()
 
-            # Dynamic Slicer: Category filter on ME2N
-            if selected_category and selected_category != "ALL" and "Category" in df_me2n.columns:
-                df_me2n = df_me2n[df_me2n["Category"].astype(str).str.upper() == selected_category.upper()].copy()
+            # Dynamic Slicer: Status filter on ME2N (supports multiple selections)
+            if sel_statuses and "Article Status - New" in df_me2n.columns:
+                df_me2n = df_me2n[df_me2n["Article Status - New"].astype(str).str.strip().str.upper().isin(sel_statuses)].copy()
+
+            # Dynamic Slicer: Category filter on ME2N (supports multiple selections)
+            if sel_categories and "Category" in df_me2n.columns:
+                df_me2n = df_me2n[df_me2n["Category"].astype(str).str.strip().str.upper().isin(sel_categories)].copy()
 
             # Dynamic Slicer: Country filter on ME2N
-            if selected_country and selected_country != "ALL" and "Country" in df_me2n.columns:
-                df_me2n = df_me2n[df_me2n["Country"].astype(str).str.upper().str.contains(selected_country.upper())].copy()
+            if sel_countries and "Country" in df_me2n.columns:
+                df_me2n = df_me2n[df_me2n["Country"].astype(str).str.strip().str.upper().apply(lambda c: any(sc in c for sc in sel_countries))].copy()
 
             results["loaded_files"].append("ME2N (Open POs)")
         except Exception as e:
@@ -466,20 +513,25 @@ def process_unified_datasets(
         top_bottlenecks = shortage_items.to_dict("records")
 
     # =============================================================
-    # 7. COMPUTE HIGH-LEVEL EXECUTIVE KPIS & CHARTS (IN SAUDI RIYAL - SAR)
+    # 7. COMPUTE HIGH-LEVEL EXECUTIVE KPIS & CHARTS (IN KUWAITI DINAR - KD)
     # =============================================================
     kpis = {}
     charts = {}
-    SAR_PER_KWD = 12.25  # Standard Saudi Riyal conversion rate for KWD valuation fields
+    SAR_PER_KWD = 1.0  # KD is primary reporting currency
 
     # Commercial Valuation & CBM (TIM)
     if df_tim is not None and not df_tim.empty:
-        # Valuation converted to Saudi Riyals (SAR)
-        tot_val_sar = float(df_tim["OH Value KD"].sum()) * SAR_PER_KWD
-        kpis["total_valuation_sar"] = round(tot_val_sar, 2)
+        # Valuation in KD (OH Value KD)
+        tot_val_kd = float(df_tim["OH Value KD"].sum())
+        kpis["total_valuation_kd"] = round(tot_val_kd, 2)
+        kpis["total_valuation_sar"] = round(tot_val_kd, 2)  # backwards-compat alias
         kpis["total_cbm"] = round(float(df_tim["OH CBM"].sum()), 2)
         kpis["total_articles"] = int(df_tim["Article_Key"].nunique())
         
+        # Open POs from TIM Master: Balance Quantity (Less CCSTO) & Balance KD Total
+        kpis["tim_open_po_qty"] = round(float(df_tim["Balance Quantity (Less CCSTO)"].sum()), 2) if "Balance Quantity (Less CCSTO)" in df_tim.columns else 0.0
+        kpis["tim_open_po_val_kd"] = round(float(df_tim["Balance KD Total"].sum()), 2) if "Balance KD Total" in df_tim.columns else 0.0
+
         # Audio Directive: ATP Buckets (<0, 0-30, Cumulative <30)
         atp_neg = int((df_tim["ATP QTY"] < 0).sum())
         atp_0_30 = int(((df_tim["ATP QTY"] >= 0) & (df_tim["ATP QTY"] < 30)).sum())
@@ -505,15 +557,17 @@ def process_unified_datasets(
             {"label": "Healthy Stock (>30)", "value": atp_healthy, "color": "#10B981"}
         ]
 
-        # Chart 1.2: Category Lead Time vs Coverage Matrix Table & Data (in SAR)
+        # Chart 1.2: Category Lead Time vs Coverage Matrix Table & Data (in KD)
         cat_matrix = df_tim.groupby("Category").agg(
             Avg_Lead_Time=("Lead Time", "mean"),
             Total_Stock=("OH Stock", "sum"),
             Total_Mean_Sales=("Country Sales Monthly Mean QTY", "sum"),
             Total_Valuation_KD=("OH Value KD", "sum"),
-            Total_CBM=("OH CBM", "sum")
+            Total_CBM=("OH CBM", "sum"),
+            Open_PO_Qty=("Balance Quantity (Less CCSTO)", "sum") if "Balance Quantity (Less CCSTO)" in df_tim.columns else ("OH Stock", lambda x: 0),
+            Open_PO_Val_KD=("Balance KD Total", "sum") if "Balance KD Total" in df_tim.columns else ("OH Value KD", lambda x: 0)
         ).reset_index()
-        cat_matrix["Total_Valuation_SAR"] = cat_matrix["Total_Valuation_KD"] * SAR_PER_KWD
+        cat_matrix["Total_Valuation_SAR"] = cat_matrix["Total_Valuation_KD"]  # alias in KD
         cat_matrix["DoC"] = np.where(
             cat_matrix["Total_Mean_Sales"] > 0,
             (cat_matrix["Total_Stock"] / (cat_matrix["Total_Mean_Sales"] / 30.0)).round(1),
@@ -535,14 +589,14 @@ def process_unified_datasets(
         for _, row in cat_matrix.iterrows():
             doc_val = min(float(row["DoC"]), 365.0)  # cap for clean plotting
             lt_val = round(float(row["Avg_Lead_Time"]), 1)
-            val_sar = float(row["Total_Valuation_SAR"])
-            r_size = max(6, min(24, int(val_sar / 500000) + 6))
+            val_kd = float(row["Total_Valuation_KD"])
+            r_size = max(6, min(24, int(val_kd / 50000) + 6))
             scatter_items.append({
                 "category": str(row["Category"]),
                 "x": lt_val,
                 "y": doc_val,
                 "r": r_size,
-                "valuation": round(val_sar, 2)
+                "valuation": round(val_kd, 2)
             })
         charts["lead_time_vs_doc_scatter"] = scatter_items
 
@@ -561,10 +615,24 @@ def process_unified_datasets(
             charts["cbm_by_country_category"] = {"categories": [], "series": []}
 
         # Chart 1.6: Article Status Lifecycle Distribution (Voice Note Requirement)
-        if "Article Status - New" in df_tim.columns:
-            status_counts = df_tim["Article Status - New"].astype(str).str.strip().value_counts()
+        # Consistent palette matching Article Lifecycle Assortment:
+        # New -> Slate (#94A3B8), Discontinued -> Blue-Slate (#64748B), Active -> Emerald (#10B981), Active Seasonal -> Amber (#F59E0B)
+        status_palette = {
+            "ACTIVE": "#10B981",
+            "DISCONTINUED": "#64748B",
+            "NEW": "#94A3B8",
+            "ACTIVE SEASONAL": "#F59E0B"
+        }
+        status_source = raw_df_tim if 'raw_df_tim' in locals() and raw_df_tim is not None else df_tim
+        if status_source is not None and "Article Status - New" in status_source.columns:
+            status_counts = (df_tim if df_tim is not None else status_source)["Article Status - New"].astype(str).str.strip().value_counts()
             charts["article_status_distribution"] = [
-                {"label": str(k), "value": int(v)} for k, v in status_counts.items() if str(k).upper() not in ["NAN", "NONE", ""]
+                {
+                    "label": str(k),
+                    "value": int(v),
+                    "color": status_palette.get(str(k).upper(), "#6366F1")
+                }
+                for k, v in status_counts.items() if str(k).upper() not in ["NAN", "NONE", ""]
             ]
         else:
             charts["article_status_distribution"] = []
@@ -575,17 +643,19 @@ def process_unified_datasets(
         kpis["atp_cumulative_risk"] = 0
         kpis["days_of_coverage"] = 0.0
 
-    # Logistics & Freight Delays (Freight Status - converted to SAR)
+    # Logistics & Freight Delays (Freight Status - in KD)
     if df_fs is not None and not df_fs.empty:
         kpis["total_pos_monitored"] = int(df_fs["PO#"].nunique())
         kpis["total_containers"] = int(df_fs["Container"].nunique()) if "Container" in df_fs.columns else 0
         
-        # Capital at Risk in Saudi Riyals (SAR)
+        # Capital at Risk in Kuwaiti Dinar (KD)
         delayed_rows = df_fs[df_fs["Over All Delay"] > 0]
-        kpis["logistics_capital_at_risk_sar"] = round(float(delayed_rows["InbValKWD"].sum()) * SAR_PER_KWD, 2)
-        kpis["total_inbound_value_sar"] = round(float(df_fs["InbValKWD"].sum()) * SAR_PER_KWD, 2)
+        kpis["logistics_capital_at_risk_kd"] = round(float(delayed_rows["InbValKWD"].sum()), 2)
+        kpis["logistics_capital_at_risk_sar"] = kpis["logistics_capital_at_risk_kd"]  # alias
+        kpis["total_inbound_value_kd"] = round(float(df_fs["InbValKWD"].sum()), 2)
+        kpis["total_inbound_value_sar"] = kpis["total_inbound_value_kd"]  # alias
         kpis["financial_risk_rate_pct"] = round(
-            (kpis["logistics_capital_at_risk_sar"] / kpis["total_inbound_value_sar"] * 100) if kpis["total_inbound_value_sar"] > 0 else 0.0, 1
+            (kpis["logistics_capital_at_risk_kd"] / kpis["total_inbound_value_kd"] * 100) if kpis["total_inbound_value_kd"] > 0 else 0.0, 1
         )
 
         delayed_pos = int(delayed_rows["PO#"].nunique())
@@ -603,16 +673,16 @@ def process_unified_datasets(
                 milestone_data.append({"milestone": m_label, "delayed_pos": cnt, "avg_delay_days": round(avg_d, 1)})
         charts["milestone_delay_waterfall"] = milestone_data
 
-        # Chart 3.2: Top 10 Delayed Suppliers Exposure (Values in SAR)
+        # Chart 3.2: Top 10 Delayed Suppliers Exposure (Values in KD)
         top_delayed_v = delayed_rows.groupby(["Vendor Name", "Vendor Ctry"]).agg(
             Delayed_POs=("PO#", "nunique"),
             Exposed_Capital_KD=("InbValKWD", "sum"),
             Avg_Delay=("Over All Delay", "mean")
         ).reset_index().sort_values(by="Exposed_Capital_KD", ascending=False).head(10)
-        top_delayed_v["Exposed_Capital"] = top_delayed_v["Exposed_Capital_KD"] * SAR_PER_KWD
+        top_delayed_v["Exposed_Capital"] = top_delayed_v["Exposed_Capital_KD"].round(2)
         charts["top_delayed_vendors"] = top_delayed_v.to_dict("records")
 
-        # Chart 3.3: Import vs Local Financial Risk Breakdown (in SAR)
+        # Chart 3.3: Import vs Local Financial Risk Breakdown (in KD)
         if "Import_Local" in df_fs.columns:
             imp_loc = df_fs.groupby("Import_Local").agg(
                 Total_Value_KD=("InbValKWD", "sum"),
@@ -620,13 +690,13 @@ def process_unified_datasets(
                 Delayed_POs=("PO#", lambda s: s[df_fs.loc[s.index, "Over All Delay"] > 0].nunique()),
                 Total_POs=("PO#", "nunique")
             ).reset_index()
-            imp_loc["Total_Value"] = imp_loc["Total_Value_KD"] * SAR_PER_KWD
-            imp_loc["Delayed_Value"] = imp_loc["Delayed_Value_KD"] * SAR_PER_KWD
+            imp_loc["Total_Value"] = imp_loc["Total_Value_KD"].round(2)
+            imp_loc["Delayed_Value"] = imp_loc["Delayed_Value_KD"].round(2)
             charts["import_vs_local_risk"] = imp_loc.to_dict("records")
         else:
             charts["import_vs_local_risk"] = []
 
-        # Chart 3.4: Delayed POs & Latency by Country of Origin (in SAR)
+        # Chart 3.4: Delayed POs & Latency by Country of Origin (in KD)
         c_col = "Vendor Country Name" if "Vendor Country Name" in df_fs.columns else ("Vendor Ctry" if "Vendor Ctry" in df_fs.columns else None)
         if c_col:
             ctry_delay = delayed_rows.groupby(c_col).agg(
@@ -634,7 +704,7 @@ def process_unified_datasets(
                 Exposed_Capital_KD=("InbValKWD", "sum"),
                 Avg_Delay=("Over All Delay", "mean")
             ).reset_index().sort_values(by="Delayed_POs", ascending=False).head(8)
-            ctry_delay["Exposed_Capital"] = ctry_delay["Exposed_Capital_KD"] * SAR_PER_KWD
+            ctry_delay["Exposed_Capital"] = ctry_delay["Exposed_Capital_KD"].round(2)
             charts["delays_by_country"] = ctry_delay.to_dict("records")
         else:
             charts["delays_by_country"] = []
@@ -866,9 +936,11 @@ def process_unified_datasets(
             Open_Sales_QTY=("Open Sales QTY", "sum"),
             ATP_QTY=("ATP QTY", "sum"),
             Monthly_Sales_Mean=("Country Sales Monthly Mean QTY", "sum"),
-            Status=("Article Status - New", "first")
+            Status=("Article Status - New", "first"),
+            TIM_Open_PO_Qty=("Balance Quantity (Less CCSTO)", "sum") if "Balance Quantity (Less CCSTO)" in df_tim.columns else ("OH Stock", lambda x: 0),
+            TIM_Open_PO_Val_KD=("Balance KD Total", "sum") if "Balance KD Total" in df_tim.columns else ("OH Value KD", lambda x: 0)
         )
-        m_grouped["OH_Valuation_SAR"] = (m_grouped["OH_Valuation_KD"] * SAR_PER_KWD).round(2)
+        m_grouped["OH_Valuation_SAR"] = m_grouped["OH_Valuation_KD"].round(2)
         m_grouped["DoC"] = np.where(
             m_grouped["Monthly_Sales_Mean"] > 0,
             (m_grouped["OH_Stock"] / (m_grouped["Monthly_Sales_Mean"] / 30.0)).round(1),
@@ -901,20 +973,23 @@ def process_unified_datasets(
             m_grouped["Shortage_Qty"] = 0
 
         # Sort priority: Shortages first, then Negative ATP, then highest valuation
-        m_grouped = m_grouped.sort_values(by=["Shortage_Qty", "ATP_QTY", "OH_Valuation_SAR"], ascending=[False, True, False])
+        m_grouped = m_grouped.sort_values(by=["Shortage_Qty", "ATP_QTY", "OH_Valuation_KD"], ascending=[False, True, False])
         master_records = m_grouped.head(100).to_dict("records")
 
         # Collect distinct filter values for UI slicers
         cat_list = all_cat_list if 'all_cat_list' in locals() else sorted([str(c) for c in df_tim["Category"].dropna().unique() if str(c).strip()])
         ctry_list = all_ctry_list if 'all_ctry_list' in locals() else (sorted([str(c) for c in df_tim["Country"].dropna().unique() if str(c).strip()]) if "Country" in df_tim.columns else ["Kuwait", "Saudi Arabia"])
+        status_list = all_status_list if 'all_status_list' in locals() else ["Active", "Discontinued", "New", "Active Seasonal"]
         results["filter_options"] = {
             "categories": cat_list,
-            "countries": ctry_list
+            "countries": ctry_list,
+            "statuses": status_list
         }
     else:
         results["filter_options"] = {
-            "categories": ["KITCHEN", "DOORS & WINDOWS", "KITCHEN PROJECT", "FURNITURE"],
-            "countries": ["Kuwait", "Saudi Arabia"]
+            "categories": ["KITCHEN", "DOORS & WINDOWS", "PROJECT", "FURNITURE"],
+            "countries": ["Kuwait", "Saudi Arabia"],
+            "statuses": ["Active", "Discontinued", "New", "Active Seasonal"]
         }
 
     # =============================================================
@@ -931,10 +1006,11 @@ def process_unified_datasets(
             Warehouse_CBM=("OH CBM", "sum"),
             Open_Sales=("Open Sales QTY", "sum"),
             ATP_Stock=("ATP QTY", "sum"),
-            Avg_Lead_Time_Days=("Lead Time", "mean")
+            Avg_Lead_Time_Days=("Lead Time", "mean"),
+            Open_PO_Qty=("Balance Quantity (Less CCSTO)", "sum") if "Balance Quantity (Less CCSTO)" in df_tim.columns else ("OH Stock", lambda x: 0),
+            Open_PO_Val_KD=("Balance KD Total", "sum") if "Balance KD Total" in df_tim.columns else ("OH Value KD", lambda x: 0)
         ).reset_index()
-        t1_df["OH_Valuation_SAR"] = (t1_df["OH_Valuation_KD"] * SAR_PER_KWD).round(2)
-        t1_df.drop(columns=["OH_Valuation_KD"], inplace=True)
+        t1_df["OH_Valuation_SAR"] = t1_df["OH_Valuation_KD"].round(2)
         excel_tables["executive_summary"] = t1_df.to_dict("records")
 
         # Tab 2: ATP Threshold Risk Table
@@ -966,8 +1042,9 @@ def process_unified_datasets(
     if df_fs is not None and not df_fs.empty:
         df_fs_ui = df_fs.copy()
         if "InbValKWD" in df_fs_ui.columns:
-            df_fs_ui["InbVal_SAR"] = (df_fs_ui["InbValKWD"] * SAR_PER_KWD).round(2)
-        cols_fs = ["PO#", "Article", "Category", "Vendor Name", "Vendor Ctry", "Import_Local", "Status", "InbVal_SAR", "Over All Delay", "EXF Delay", "ETA Delay", "BAYAN Delay", "AWH Delay"]
+            df_fs_ui["InbVal_KD"] = df_fs_ui["InbValKWD"].round(2)
+            df_fs_ui["InbVal_SAR"] = df_fs_ui["InbVal_KD"]
+        cols_fs = ["PO#", "Article", "Category", "Vendor Name", "Vendor Ctry", "Import_Local", "Status", "InbVal_KD", "InbVal_SAR", "Over All Delay", "EXF Delay", "ETA Delay", "BAYAN Delay", "AWH Delay"]
         valid_fs = [c for c in cols_fs if c in df_fs_ui.columns]
         excel_tables["logistics_delays"] = df_fs_ui[valid_fs].head(200).to_dict("records")
     else:
@@ -1060,7 +1137,7 @@ def generate_master_excel_workbook(df_tim, df_me2n, df_fs, df_mb52, df_lines, df
         warn_fmt = wb.add_format({'bg_color': '#FEF08A', 'font_color': '#854D0E', 'bold': True})
         ok_fmt = wb.add_format({'bg_color': '#D1FAE5', 'font_color': '#065F46', 'bold': True})
 
-        # Tab 1: Executive Commercial Summary (All valuations strictly in SAR)
+        # Tab 1: Executive Commercial Summary (All valuations in KD)
         if df_tim is not None and not df_tim.empty:
             t1 = df_tim.groupby("Category").agg(
                 Total_Articles=("Article_Key", "nunique"),
@@ -1069,10 +1146,10 @@ def generate_master_excel_workbook(df_tim, df_me2n, df_fs, df_mb52, df_lines, df
                 Warehouse_CBM=("OH CBM", "sum"),
                 Open_Sales=("Open Sales QTY", "sum"),
                 ATP_Stock=("ATP QTY", "sum"),
-                Avg_Lead_Time_Days=("Lead Time", "mean")
+                Avg_Lead_Time_Days=("Lead Time", "mean"),
+                Open_PO_Qty=("Balance Quantity (Less CCSTO)", "sum") if "Balance Quantity (Less CCSTO)" in df_tim.columns else ("OH Stock", lambda x: 0),
+                Open_PO_Val_KD=("Balance KD Total", "sum") if "Balance KD Total" in df_tim.columns else ("OH Value KD", lambda x: 0)
             ).reset_index()
-            t1["OH_Valuation_SAR"] = (t1["OH_Valuation_KD"] * 12.25).round(2)
-            t1.drop(columns=["OH_Valuation_KD"], inplace=True)
             t1.to_excel(writer, sheet_name="Executive_Summary", index=False)
 
         # Tab 2: ATP Threshold Risk (Mandatory Audio Note Buckets)
@@ -1091,12 +1168,12 @@ def generate_master_excel_workbook(df_tim, df_me2n, df_fs, df_mb52, df_lines, df
             valid_cols = [c for c in cols_me if c in df_me2n.columns]
             df_me2n[valid_cols].head(5000).to_excel(writer, sheet_name="Early_PO_Pipeline", index=False)
 
-        # Tab 4: Logistics Delays (Freight Status - Valuations in SAR)
+        # Tab 4: Logistics Delays (Freight Status - Valuations in KD)
         if df_fs is not None and not df_fs.empty:
             df_fs_copy = df_fs.copy()
             if "InbValKWD" in df_fs_copy.columns:
-                df_fs_copy["InbVal_SAR"] = (df_fs_copy["InbValKWD"] * 12.25).round(2)
-            cols_fs = ["PO#", "Article", "Category", "Vendor Name", "Vendor Ctry", "Import_Local", "Status", "InbVal_SAR", "Over All Delay", "EXF Delay", "ETA Delay", "BAYAN Delay", "AWH Delay"]
+                df_fs_copy["InbVal_KD"] = df_fs_copy["InbValKWD"].round(2)
+            cols_fs = ["PO#", "Article", "Category", "Vendor Name", "Vendor Ctry", "Import_Local", "Status", "InbVal_KD", "Over All Delay", "EXF Delay", "ETA Delay", "BAYAN Delay", "AWH Delay"]
             valid_fs = [c for c in cols_fs if c in df_fs_copy.columns]
             df_fs_copy[valid_fs].head(5000).to_excel(writer, sheet_name="Logistics_Delays", index=False)
 
@@ -1135,10 +1212,10 @@ def generate_master_excel_workbook(df_tim, df_me2n, df_fs, df_mb52, df_lines, df
                 OH_CBM=("OH CBM", "sum"),
                 Open_Sales_QTY=("Open Sales QTY", "sum"),
                 ATP_QTY=("ATP QTY", "sum"),
-                Status=("Article Status - New", "first")
+                Status=("Article Status - New", "first"),
+                Balance_Qty_Less_CCSTO=("Balance Quantity (Less CCSTO)", "sum") if "Balance Quantity (Less CCSTO)" in df_tim.columns else ("OH Stock", lambda x: 0),
+                Balance_KD_Total=("Balance KD Total", "sum") if "Balance KD Total" in df_tim.columns else ("OH Value KD", lambda x: 0)
             )
-            m_exp["OH_Valuation_SAR"] = (m_exp["OH_Valuation_KD"] * 12.25).round(2)
-            m_exp.drop(columns=["OH_Valuation_KD"], inplace=True)
             m_exp.head(5000).to_excel(writer, sheet_name="Master_Data_Catalog", index=False)
 
         # Tab 10: Data Compliance & Process Anomaly Audit Log (Spec Tab 10)

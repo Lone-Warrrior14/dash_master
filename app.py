@@ -33,7 +33,7 @@ CACHE = {
 }
 
 
-def load_default_workspace_data(exclude_new=False, category="ALL", country="ALL"):
+def load_default_workspace_data(exclude_new=False, category="ALL", country="ALL", status="ALL"):
     """Auto-load existing Excel files in workspace directory for instant demo, reusing parsed dataframes for fast slicer responses."""
     tim_p = WORKSPACE_DIR / "TIM 22092026.xlsx"
     me2n_p = WORKSPACE_DIR / "me2n.XLSX"
@@ -67,11 +67,12 @@ def load_default_workspace_data(exclude_new=False, category="ALL", country="ALL"
         file_prd=f_prd,
         exclude_new_status=exclude_new,
         selected_category=category,
-        selected_country=country
+        selected_country=country,
+        selected_status=status
     )
     if extra and extra[0]:
         CACHE["raw_dfs"] = extra[0]
-    if category == "ALL" and country == "ALL" and not exclude_new:
+    if category == "ALL" and country == "ALL" and status == "ALL" and not exclude_new:
         CACHE["data"] = res
         CACHE["dfs"] = (d_tim, d_me, d_fs, d_mb, d_lines, d_so, d_anomalies)
     return res
@@ -88,14 +89,15 @@ def get_dashboard_data():
     reload_data = request.args.get("reload", "false").lower() == "true"
     category = request.args.get("category", "ALL")
     country = request.args.get("country", "ALL")
+    status = request.args.get("status", "ALL")
 
     # If no data has been uploaded yet, return empty state
     if CACHE["data"] is None:
         return safe_json_response({"uploaded": False, "message": "No data uploaded yet. Please upload files to process."})
 
     # If slicers changed and we have cached data
-    if reload_data or exclude_new or category != "ALL" or country != "ALL":
-        data = load_default_workspace_data(exclude_new=exclude_new, category=category, country=country)
+    if reload_data or exclude_new or category != "ALL" or country != "ALL" or status != "ALL":
+        data = load_default_workspace_data(exclude_new=exclude_new, category=category, country=country, status=status)
     else:
         data = CACHE["data"]
 

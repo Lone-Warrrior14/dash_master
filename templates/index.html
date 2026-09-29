@@ -198,6 +198,160 @@
             padding: 6px;
         }
 
+        /* Custom Multi-Select Slicer Dropdown Component */
+        .ms-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .ms-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #141721;
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            max-width: 220px;
+            white-space: nowrap;
+        }
+
+        .ms-trigger:hover, .ms-dropdown.open .ms-trigger {
+            border-color: #384257;
+            background: #181D2A;
+        }
+
+        .ms-trigger .ms-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ms-trigger .ms-arrow {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+            margin-left: auto;
+        }
+
+        .ms-dropdown.open .ms-arrow {
+            transform: rotate(180deg);
+        }
+
+        .ms-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 210px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: #12151F;
+            border: 1px solid #2B3346;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+            z-index: 100;
+            padding: 6px 0;
+        }
+
+        .ms-dropdown.open .ms-menu {
+            display: block;
+        }
+
+        .ms-option {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 12px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+            user-select: none;
+        }
+
+        .ms-option:hover {
+            background: #1A202E;
+            color: #FFFFFF;
+        }
+
+        .ms-option input[type="checkbox"] {
+            accent-color: var(--accent-green);
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+        }
+
+        .ms-option.select-all-opt {
+            border-bottom: 1px solid #1E2535;
+            margin-bottom: 4px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .ms-count-badge {
+            font-size: 0.68rem;
+            padding: 1px 5px;
+            border-radius: 9999px;
+            background: rgba(34, 197, 94, 0.18);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            color: #22C55E;
+            font-weight: 700;
+        }
+
+        /* Dedicated In-Dashboard Slicer Bar */
+        .dashboard-slicer-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #10131B;
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 10px 18px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        .slicer-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .slicer-label-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
+        }
+
+        .slicer-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .slicer-item-title {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
         .btn-action {
             display: inline-flex;
             align-items: center;
@@ -854,32 +1008,11 @@
         </div>
 
         <div class="header-actions">
-            <!-- Global Slicers -->
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-layer-group" style="font-size: 0.75rem; color: var(--text-muted);"></i>
-                <select class="filter-select" id="categoryFilter" onchange="applyGlobalFilters()" title="Filter by Product Category">
-                    <option value="ALL">All Product Categories</option>
-                    <option value="KITCHEN">Kitchens</option>
-                    <option value="DOORS & WINDOWS">Doors & Windows</option>
-                    <option value="KITCHEN PROJECT">Kitchen Project</option>
-                    <option value="FURNITURE">Furniture</option>
-                </select>
+            <!-- Global Dataset Status Pill -->
+            <div id="liveModelIndicator" style="display: none; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.25); font-size: 0.75rem; color: #22C55E; font-weight: 600;">
+                <span class="pulse-dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22C55E;"></span>
+                Live Model Active
             </div>
-
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-globe" style="font-size: 0.75rem; color: var(--text-muted);"></i>
-                <select class="filter-select" id="countryFilter" onchange="applyGlobalFilters()" title="Filter by Market Destination Country">
-                    <option value="ALL">All Destination Countries</option>
-                    <option value="Kuwait">Kuwait</option>
-                    <option value="Saudi Arabia">Saudi Arabia</option>
-                </select>
-            </div>
-
-            <!-- Voice Note Filter: Article Status Toggle -->
-            <label class="filter-toggle" title="Exclude newly introduced catalog items with zero demand history from replenishment run-rates">
-                <input type="checkbox" id="excludeNewStatusToggle" onchange="toggleExcludeNew(this.checked)">
-                <span>Exclude 'New' SKU Runrates</span>
-            </label>
 
             <!-- Actions -->
             <button class="btn-action btn-secondary" onclick="openUploadModal()">
@@ -979,15 +1112,79 @@
         </div>
 
         <div id="dashboardContent" style="display: none;">
-        <!-- Executive BI Status Strip -->
-        <div class="bi-status-strip">
-            <div>
-                <span class="pulse-indicator"></span>
-                <strong>Live Model Loaded</strong> &mdash; Harmonized ERP, Warehouse & Logistics Streams
+        <!-- Prominent Executive Slicer Command Center (Multi-selection enabled) -->
+        <div class="dashboard-slicer-bar">
+            <div class="slicer-group">
+                <div class="slicer-label-tag">
+                    <i class="fa-solid fa-sliders text-emerald-400"></i>
+                    <span>Dashboard Slicers</span>
+                </div>
+
+                <!-- Category Multi-Select Slicer -->
+                <div class="slicer-item">
+                    <span class="slicer-item-title">Category:</span>
+                    <div class="ms-dropdown" id="categoryMsDropdown">
+                        <div class="ms-trigger" onclick="toggleMsDropdown('categoryMsDropdown')">
+                            <i class="fa-solid fa-layer-group text-slate-400 text-xs"></i>
+                            <span class="ms-text" id="categoryMsText">All Categories</span>
+                            <span class="ms-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                        </div>
+                        <div class="ms-menu" id="categoryMsMenu">
+                            <label class="ms-option select-all-opt">
+                                <input type="checkbox" id="catCheckAll" checked onchange="toggleSelectAll('category')">
+                                <span>Select All</span>
+                            </label>
+                            <div id="categoryMsOptions">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifecycle Assortment Multi-Select Slicer -->
+                <div class="slicer-item">
+                    <span class="slicer-item-title">Lifecycle Status:</span>
+                    <div class="ms-dropdown" id="statusMsDropdown">
+                        <div class="ms-trigger" onclick="toggleMsDropdown('statusMsDropdown')">
+                            <i class="fa-solid fa-chart-pie text-slate-400 text-xs"></i>
+                            <span class="ms-text" id="statusMsText">All Lifecycle Statuses</span>
+                            <span class="ms-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                        </div>
+                        <div class="ms-menu" id="statusMsMenu">
+                            <label class="ms-option select-all-opt">
+                                <input type="checkbox" id="statusCheckAll" checked onchange="toggleSelectAll('status')">
+                                <span>Select All</span>
+                            </label>
+                            <div id="statusMsOptions">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Country Slicer -->
+                <div class="slicer-item">
+                    <span class="slicer-item-title">Country:</span>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-globe text-slate-400 text-xs"></i>
+                        <select class="filter-select" id="countryFilter" onchange="applyGlobalFilters()" title="Filter by Market Destination Country">
+                            <option value="ALL">All Destination Countries</option>
+                            <option value="Kuwait">Kuwait</option>
+                            <option value="Saudi Arabia">Saudi Arabia</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div style="display: flex; gap: 18px; align-items: center;">
-                <span><i class="fa-solid fa-database" style="margin-right: 5px;"></i> Currency: <strong>SAR (Saudi Riyals)</strong></span>
-                <span><i class="fa-solid fa-clock" style="margin-right: 5px;"></i> Multi-Source Harmonization: <strong>Active</strong></span>
+
+            <!-- Voice Note Filter: Article Status Runrate Toggle & Reset -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="filter-toggle" title="Exclude newly introduced catalog items with zero demand history from replenishment run-rates">
+                    <input type="checkbox" id="excludeNewStatusToggle" onchange="toggleExcludeNew(this.checked)">
+                    <span>Exclude 'New' Runrates</span>
+                </label>
+                <button class="btn-action btn-secondary" onclick="resetAllSlicers()" style="padding: 5px 10px; font-size: 0.75rem;">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                </button>
             </div>
         </div>
 
@@ -1001,7 +1198,7 @@
                 <div class="kpi-value" id="kpiValuation">--</div>
                 <div class="kpi-meta" style="color: var(--text-muted);">
                     <i class="fa-solid fa-shield-halved text-xs" style="color: #94A3B8;"></i>
-                    <span>TIM Master Valuation in SAR</span>
+                    <span>OH Value KD</span>
                 </div>
             </div>
 
@@ -1013,7 +1210,7 @@
                 <div class="kpi-value" id="kpiCBM">--</div>
                 <div class="kpi-meta" style="color: var(--accent-green);">
                     <i class="fa-solid fa-warehouse text-xs"></i>
-                    <span>Total Physical Volume (m³)</span>
+                    <span>OH CBM</span>
                 </div>
             </div>
 
@@ -1053,10 +1250,10 @@
             </div>
             <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Unlagged PO Value (ME2N)</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Open POs Value (TIM Balance KD)</span>
                     <span id="kpiMe2nVal" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">--</span>
                 </div>
-                <span class="lead-pill lead-pill-warm">Committed</span>
+                <span class="lead-pill lead-pill-warm">Balance KD Total</span>
             </div>
             <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
@@ -1181,7 +1378,7 @@
                         <div class="card-header">
                             <div>
                                 <div class="card-title">Category Commercial Summary Rollup (Executive Excel Tab 1)</div>
-                                <div class="card-desc">Valuation (SAR), On-Hand Stock, CBM Space, and Replenishment Metrics</div>
+                                <div class="card-desc">Valuation (KD), On-Hand Stock, Open POs (Balance KD), CBM Space, and Replenishment Metrics</div>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -1191,8 +1388,10 @@
                                         <th>Category</th>
                                         <th>Total SKUs</th>
                                         <th>Physical Stock Units</th>
-                                        <th>Inventory Valuation (SAR)</th>
+                                        <th>Inventory Valuation (KD)</th>
                                         <th>Warehouse Space (CBM)</th>
+                                        <th>Open PO Qty (TIM)</th>
+                                        <th>Open PO Value (KD)</th>
                                         <th>Open Sales Qty</th>
                                         <th>Net ATP Stock</th>
                                         <th>Avg Lead Time</th>
@@ -1374,7 +1573,7 @@
                         <div class="card-header">
                             <div>
                                 <div class="card-title">Import vs. Local Inbound Risk</div>
-                                <div class="card-desc">Gross Capital vs. Delayed Capital at Risk (SAR)</div>
+                                <div class="card-desc">Gross Capital vs. Delayed Capital at Risk (KD)</div>
                             </div>
                         </div>
                         <div class="chart-container" style="height: 330px;">
@@ -1388,7 +1587,7 @@
                         <div class="card-header">
                             <div>
                                 <div class="card-title">Top Delayed Suppliers Exposure</div>
-                                <div class="card-desc">Suppliers with greatest delayed capital at risk (SAR)</div>
+                                <div class="card-desc">Suppliers with greatest delayed capital at risk (KD)</div>
                             </div>
                         </div>
                         <div class="table-responsive" style="max-height: 330px; overflow-y: auto;">
@@ -1398,7 +1597,7 @@
                                         <th>Vendor Name</th>
                                         <th>Ctry</th>
                                         <th>Delayed POs</th>
-                                        <th>Capital at Risk (SAR)</th>
+                                        <th>Capital at Risk (KD)</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -1428,7 +1627,7 @@
                                         <th>Origin</th>
                                         <th>Import/Local</th>
                                         <th>Status</th>
-                                        <th>Inbound Value (SAR)</th>
+                                        <th>Inbound Value (KD)</th>
                                         <th>Total Delay (d)</th>
                                         <th>EXF (d)</th>
                                         <th>ETA (d)</th>
@@ -1681,7 +1880,7 @@
                         <div class="card-header">
                             <div>
                                 <div class="card-title">Master Harmonized Data Catalog & Operational Control Matrix</div>
-                                <div class="card-desc">Unified cross-dataset view across TIM Catalog, ME2N Inbounds, Warehouse Bins, and Shop-Floor Shortages (Amounts in Saudi Riyal - SAR)</div>
+                                <div class="card-desc">Unified cross-dataset view across TIM Catalog, ME2N Inbounds, Warehouse Bins, and Shop-Floor Shortages (Valuation in KD, Volume in CBM)</div>
                             </div>
                         </div>
                         <div style="margin-bottom: 14px; display: flex; gap: 12px; align-items: center;">
@@ -1698,11 +1897,12 @@
                                         <th>Status</th>
                                         <th>Lead Time</th>
                                         <th>OH Stock</th>
-                                        <th>Valuation (SAR)</th>
-                                        <th>CBM (m³)</th>
+                                        <th>OH Value (KD)</th>
+                                        <th>OH CBM</th>
                                         <th>ATP Qty</th>
                                         <th>Days of Coverage</th>
-                                        <th>ME2N Open PO Qty</th>
+                                        <th>TIM Open PO Qty</th>
+                                        <th>TIM Open PO (KD)</th>
                                         <th>Next Inbound Date</th>
                                         <th>Shop Shortage</th>
                                     </tr>
@@ -1984,8 +2184,12 @@
             document.getElementById('uploadModal').classList.remove('active');
         }
 
+        function formatKD(val) {
+            return Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' KD';
+        }
+
         function formatSAR(val) {
-            return Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' SAR';
+            return formatKD(val);
         }
 
         function formatNum(val) {
@@ -1995,14 +2199,158 @@
         let masterDataRows = [];
         let latestPayload = null;
 
-        async function fetchDashboard(excludeNew = null, category = null, country = null) {
+        // Multi-select slicer state
+        let selectedCategories = new Set();
+        let selectedStatuses = new Set();
+        let allCategoryOptions = [];
+        let allStatusOptions = [];
+
+        function toggleMsDropdown(dropdownId) {
+            const dd = document.getElementById(dropdownId);
+            if (!dd) return;
+            const isOpen = dd.classList.contains('open');
+            // Close any other open dropdowns
+            document.querySelectorAll('.ms-dropdown').forEach(d => d.classList.remove('open'));
+            if (!isOpen) {
+                dd.classList.add('open');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.ms-dropdown')) {
+                document.querySelectorAll('.ms-dropdown').forEach(d => d.classList.remove('open'));
+            }
+        });
+
+        function updateMsTriggerText(type) {
+            if (type === 'category') {
+                const textEl = document.getElementById('categoryMsText');
+                if (!textEl) return;
+                if (selectedCategories.size === 0 || selectedCategories.size === allCategoryOptions.length) {
+                    textEl.innerHTML = `All Categories <span class="ms-count-badge">${allCategoryOptions.length}</span>`;
+                    const chk = document.getElementById('catCheckAll');
+                    if (chk) chk.checked = true;
+                } else {
+                    const sample = Array.from(selectedCategories).slice(0, 2).join(', ');
+                    const extra = selectedCategories.size > 2 ? ` +${selectedCategories.size - 2}` : '';
+                    textEl.innerHTML = `${sample}${extra} <span class="ms-count-badge">${selectedCategories.size}</span>`;
+                    const chk = document.getElementById('catCheckAll');
+                    if (chk) chk.checked = false;
+                }
+            } else if (type === 'status') {
+                const textEl = document.getElementById('statusMsText');
+                if (!textEl) return;
+                if (selectedStatuses.size === 0 || selectedStatuses.size === allStatusOptions.length) {
+                    textEl.innerHTML = `All Lifecycle Statuses <span class="ms-count-badge">${allStatusOptions.length}</span>`;
+                    const chk = document.getElementById('statusCheckAll');
+                    if (chk) chk.checked = true;
+                } else {
+                    const sample = Array.from(selectedStatuses).slice(0, 2).join(', ');
+                    const extra = selectedStatuses.size > 2 ? ` +${selectedStatuses.size - 2}` : '';
+                    textEl.innerHTML = `${sample}${extra} <span class="ms-count-badge">${selectedStatuses.size}</span>`;
+                    const chk = document.getElementById('statusCheckAll');
+                    if (chk) chk.checked = false;
+                }
+            }
+        }
+
+        function toggleSelectAll(type) {
+            if (type === 'category') {
+                const checkAll = document.getElementById('catCheckAll').checked;
+                selectedCategories.clear();
+                if (checkAll) {
+                    allCategoryOptions.forEach(c => selectedCategories.add(c));
+                }
+                document.querySelectorAll('#categoryMsOptions input[type="checkbox"]').forEach(cb => {
+                    cb.checked = checkAll;
+                });
+                updateMsTriggerText('category');
+            } else if (type === 'status') {
+                const checkAll = document.getElementById('statusCheckAll').checked;
+                selectedStatuses.clear();
+                if (checkAll) {
+                    allStatusOptions.forEach(s => selectedStatuses.add(s));
+                }
+                document.querySelectorAll('#statusMsOptions input[type="checkbox"]').forEach(cb => {
+                    cb.checked = checkAll;
+                });
+                updateMsTriggerText('status');
+            }
+            applyGlobalFilters();
+        }
+
+        function handleOptionCheck(type, value, checked) {
+            if (type === 'category') {
+                if (checked) {
+                    selectedCategories.add(value);
+                } else {
+                    selectedCategories.delete(value);
+                }
+                updateMsTriggerText('category');
+            } else if (type === 'status') {
+                if (checked) {
+                    selectedStatuses.add(value);
+                } else {
+                    selectedStatuses.delete(value);
+                }
+                updateMsTriggerText('status');
+            }
+            applyGlobalFilters();
+        }
+
+        function resetAllSlicers() {
+            selectedCategories.clear();
+            allCategoryOptions.forEach(c => selectedCategories.add(c));
+            selectedStatuses.clear();
+            allStatusOptions.forEach(s => selectedStatuses.add(s));
+
+            const catAll = document.getElementById('catCheckAll');
+            if (catAll) catAll.checked = true;
+            document.querySelectorAll('#categoryMsOptions input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updateMsTriggerText('category');
+
+            const statAll = document.getElementById('statusCheckAll');
+            if (statAll) statAll.checked = true;
+            document.querySelectorAll('#statusMsOptions input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updateMsTriggerText('status');
+
+            const ctrySel = document.getElementById('countryFilter');
+            if (ctrySel) ctrySel.value = 'ALL';
+
+            const exToggle = document.getElementById('excludeNewStatusToggle');
+            if (exToggle) exToggle.checked = false;
+
+            applyGlobalFilters();
+        }
+
+        async function fetchDashboard(excludeNew = null, category = null, country = null, status = null) {
             showLoading(true);
             try {
                 const exNew = (excludeNew !== null) ? excludeNew : (document.getElementById('excludeNewStatusToggle') ? document.getElementById('excludeNewStatusToggle').checked : false);
-                const cat = (category !== null) ? category : (document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : 'ALL');
                 const ctry = (country !== null) ? country : (document.getElementById('countryFilter') ? document.getElementById('countryFilter').value : 'ALL');
 
-                const url = `/api/dashboard-data?exclude_new=${exNew}&category=${encodeURIComponent(cat)}&country=${encodeURIComponent(ctry)}`;
+                // Determine Category slicer parameter (comma-separated if specific subset, or 'ALL')
+                let catParam = 'ALL';
+                if (category !== null) {
+                    catParam = category;
+                } else if (selectedCategories.size > 0 && selectedCategories.size < allCategoryOptions.length) {
+                    catParam = Array.from(selectedCategories).join(',');
+                } else if (selectedCategories.size === 0) {
+                    catParam = '__NONE__'; // Nothing selected
+                }
+
+                // Determine Lifecycle Status slicer parameter (comma-separated if specific subset, or 'ALL')
+                let statParam = 'ALL';
+                if (status !== null) {
+                    statParam = status;
+                } else if (selectedStatuses.size > 0 && selectedStatuses.size < allStatusOptions.length) {
+                    statParam = Array.from(selectedStatuses).join(',');
+                } else if (selectedStatuses.size === 0) {
+                    statParam = '__NONE__'; // Nothing selected
+                }
+
+                const url = `/api/dashboard-data?exclude_new=${exNew}&category=${encodeURIComponent(catParam)}&country=${encodeURIComponent(ctry)}&status=${encodeURIComponent(statParam)}`;
                 const res = await fetch(url);
                 if (!res.ok) {
                     throw new Error(`Server returned status ${res.status}: ${res.statusText}`);
@@ -2024,7 +2372,7 @@
         }
 
         function applyGlobalFilters() {
-            // When user changes category or country slicer, trigger full dashboard recalculation only if data is already loaded
+            // When user changes category, country, or status slicer, trigger full dashboard recalculation
             if (latestPayload) {
                 fetchDashboard();
             }
@@ -2056,30 +2404,65 @@
 
             const emptyPlaceholder = document.getElementById('emptyStatePlaceholder');
             const dashboardContent = document.getElementById('dashboardContent');
+            const liveIndicator = document.getElementById('liveModelIndicator');
             if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
             if (dashboardContent) dashboardContent.style.display = 'block';
+            if (liveIndicator) liveIndicator.style.display = 'flex';
 
             latestPayload = payload;
             const k = payload.kpis || {};
             const c = payload.charts || {};
             masterDataRows = payload.master_table || [];
 
-            // Populate Category & Country slicers dynamically if filter_options present
+            // Populate Category, Country, and Lifecycle Status slicers dynamically if filter_options present
             if (payload.filter_options) {
-                const catSel = document.getElementById('categoryFilter');
-                if (catSel && payload.filter_options.categories && catSel.dataset.initialized !== 'true') {
-                    const currVal = catSel.value;
-                    catSel.innerHTML = '<option value="ALL">All Categories</option>';
-                    payload.filter_options.categories.forEach(cat => {
-                        const opt = document.createElement('option');
-                        opt.value = cat;
-                        opt.innerText = cat;
-                        catSel.appendChild(opt);
+                // 1. Category Multi-Select Slicer
+                const catOptsContainer = document.getElementById('categoryMsOptions');
+                if (catOptsContainer && payload.filter_options.categories && catOptsContainer.dataset.initialized !== 'true') {
+                    allCategoryOptions = payload.filter_options.categories.slice();
+                    // Default: select all categories if empty
+                    if (selectedCategories.size === 0) {
+                        allCategoryOptions.forEach(c => selectedCategories.add(c));
+                    }
+                    catOptsContainer.innerHTML = '';
+                    allCategoryOptions.forEach(cat => {
+                        const isChecked = selectedCategories.has(cat);
+                        const label = document.createElement('label');
+                        label.className = 'ms-option';
+                        label.innerHTML = `
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="handleOptionCheck('category', '${cat.replace(/'/g, "\\'")}', this.checked)">
+                            <span>${cat}</span>
+                        `;
+                        catOptsContainer.appendChild(label);
                     });
-                    catSel.value = currVal;
-                    catSel.dataset.initialized = 'true';
+                    updateMsTriggerText('category');
+                    catOptsContainer.dataset.initialized = 'true';
                 }
 
+                // 2. Lifecycle Status Multi-Select Slicer
+                const statOptsContainer = document.getElementById('statusMsOptions');
+                if (statOptsContainer && payload.filter_options.statuses && statOptsContainer.dataset.initialized !== 'true') {
+                    allStatusOptions = payload.filter_options.statuses.slice();
+                    // Default: select all statuses if empty
+                    if (selectedStatuses.size === 0) {
+                        allStatusOptions.forEach(s => selectedStatuses.add(s));
+                    }
+                    statOptsContainer.innerHTML = '';
+                    allStatusOptions.forEach(st => {
+                        const isChecked = selectedStatuses.has(st);
+                        const label = document.createElement('label');
+                        label.className = 'ms-option';
+                        label.innerHTML = `
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="handleOptionCheck('status', '${st.replace(/'/g, "\\'")}', this.checked)">
+                            <span>${st}</span>
+                        `;
+                        statOptsContainer.appendChild(label);
+                    });
+                    updateMsTriggerText('status');
+                    statOptsContainer.dataset.initialized = 'true';
+                }
+
+                // 3. Country Slicer
                 const ctrySel = document.getElementById('countryFilter');
                 if (ctrySel && payload.filter_options.countries && ctrySel.dataset.initialized !== 'true') {
                     const currVal = ctrySel.value;
@@ -2095,12 +2478,17 @@
                 }
             }
 
-            // Render KPI cards in Saudi Riyal (SAR)
-            document.getElementById('kpiValuation').innerText = formatSAR(k.total_valuation_sar);
-            document.getElementById('kpiCBM').innerText = formatNum(k.total_cbm) + ' m³';
+            // Render KPI cards in Kuwaiti Dinar (KD) & Physical Volume in CBM
+            const valKd = k.total_valuation_kd !== undefined ? k.total_valuation_kd : k.total_valuation_sar;
+            document.getElementById('kpiValuation').innerText = formatKD(valKd);
+            document.getElementById('kpiCBM').innerText = formatNum(k.total_cbm) + ' CBM';
             document.getElementById('kpiAtpRisk').innerText = formatNum(k.atp_cumulative_risk);
-            document.getElementById('kpiMe2nVal').innerText = formatNum(k.me2n_committed_val);
-            document.getElementById('kpiDelayedVal').innerText = formatSAR(k.logistics_capital_at_risk_sar);
+            
+            // TIM Balance KD Total (or ME2N committed value fallback)
+            const openPoVal = k.tim_open_po_val_kd !== undefined && k.tim_open_po_val_kd > 0 ? k.tim_open_po_val_kd : (k.me2n_committed_val || 0);
+            document.getElementById('kpiMe2nVal').innerText = formatKD(openPoVal);
+            
+            document.getElementById('kpiDelayedVal').innerText = formatKD(k.logistics_capital_at_risk_kd || k.logistics_capital_at_risk_sar);
             document.getElementById('kpiDelayRate').innerText = (k.overall_tracking_delay_rate || 0) + '%';
             document.getElementById('kpiShortageQty').innerText = formatNum(k.active_shortage_qty);
             document.getElementById('kpiSoReadiness').innerText = (k.so_readiness_rate || 0) + '%';
@@ -2136,19 +2524,20 @@
                 renderScatter('chartScatterLtDoc', c.lead_time_vs_doc_scatter);
             }
 
-            // Table: Category Lead Time (in SAR)
+            // Table: Category Lead Time (in KD)
             if (c.category_lead_time_doc) {
                 const tbody = document.querySelector('#tableCategoryLeadTime tbody');
                 if (tbody) {
                     tbody.innerHTML = '';
                     c.category_lead_time_doc.forEach(row => {
                         const tr = document.createElement('tr');
+                        const valKd = row.Total_Valuation_KD !== undefined ? row.Total_Valuation_KD : row.Total_Valuation_SAR;
                         tr.innerHTML = `
                             <td style="font-weight: 600;">${row.Category}</td>
                             <td>${Math.round(row.Avg_Lead_Time || 0)} Days</td>
                             <td>${formatNum(row.Total_Stock)}</td>
-                            <td>${formatSAR(row.Total_Valuation_SAR)}</td>
-                            <td>${formatNum(row.Total_CBM)} m³</td>
+                            <td>${formatKD(valKd)}</td>
+                            <td>${formatNum(row.Total_CBM)} CBM</td>
                             <td><span class="badge-success">${row.DoC} Days</span></td>
                         `;
                         tbody.appendChild(tr);
@@ -2358,12 +2747,16 @@
             tbody.innerHTML = '';
             rows.forEach(r => {
                 const tr = document.createElement('tr');
+                const valKd = r.OH_Valuation_KD !== undefined ? r.OH_Valuation_KD : (r.OH_Valuation_SAR || 0);
+                const openPoVal = r.Open_PO_Val_KD !== undefined ? r.Open_PO_Val_KD : 0;
                 tr.innerHTML = `
                     <td style="font-weight: 700; color: #FFFFFF;">${r.Category}</td>
                     <td>${formatNum(r.Total_Articles)}</td>
                     <td>${formatNum(r.OH_Stock)}</td>
-                    <td style="font-weight: 600;">${formatSAR(r.OH_Valuation_SAR)}</td>
-                    <td>${formatNum(r.Warehouse_CBM)} m³</td>
+                    <td style="font-weight: 600;">${formatKD(valKd)}</td>
+                    <td>${formatNum(r.Warehouse_CBM)} CBM</td>
+                    <td style="font-weight: 500;">${formatNum(r.Open_PO_Qty || 0)}</td>
+                    <td style="font-weight: 600; color: #E2E8F0;">${formatKD(openPoVal)}</td>
                     <td>${formatNum(r.Open_Sales)}</td>
                     <td><span class="${r.ATP_Stock < 0 ? 'badge-danger' : 'badge-success'}">${formatNum(r.ATP_Stock)}</span></td>
                     <td>${Math.round(r.Avg_Lead_Time_Days || 0)} Days</td>
@@ -2431,7 +2824,7 @@
                     <td>${r['Vendor Ctry'] || 'N/A'}</td>
                     <td>${r.Import_Local || 'Import'}</td>
                     <td><span class="badge-neutral">${r.Status || 'N/A'}</span></td>
-                    <td style="font-weight: 600;">${formatSAR(r.InbVal_SAR)}</td>
+                    <td style="font-weight: 600;">${formatKD(r.InbVal_KD !== undefined ? r.InbVal_KD : r.InbVal_SAR)}</td>
                     <td><span class="${isDelayed ? 'badge-danger' : 'badge-success'}">${r['Over All Delay'] || 0}d</span></td>
                     <td>${r['EXF Delay'] || 0}d</td>
                     <td>${r['ETA Delay'] || 0}d</td>
@@ -2560,6 +2953,9 @@
                 const tr = document.createElement('tr');
                 const atpBadge = r.ATP_QTY < 0 ? 'badge-danger' : (r.ATP_QTY < 30 ? 'badge-warning' : 'badge-success');
                 const shortBadge = r.Shortage_Qty > 0 ? `<span class="badge-danger">${formatNum(r.Shortage_Qty)}</span>` : '<span style="color:var(--text-muted)">0</span>';
+                const valKd = r.OH_Valuation_KD !== undefined ? r.OH_Valuation_KD : (r.OH_Valuation_SAR || 0);
+                const openPoQty = r.TIM_Open_PO_Qty !== undefined && r.TIM_Open_PO_Qty !== 0 ? r.TIM_Open_PO_Qty : (r.ME2N_Open_PO_Qty || 0);
+                const openPoValKd = r.TIM_Open_PO_Val_KD !== undefined ? r.TIM_Open_PO_Val_KD : (r.ME2N_Open_PO_Value || 0);
                 tr.innerHTML = `
                     <td style="font-family: var(--font-mono); font-weight: 600; color: #F8FAFC;">${r.Article_Key}</td>
                     <td style="font-weight: 500; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${r.ArticleDesc || ''}">${r.ArticleDesc || 'N/A'}</td>
@@ -2567,11 +2963,12 @@
                     <td><span class="badge-neutral">${r.Status || 'Active'}</span></td>
                     <td>${Math.round(r.Lead_Time || 0)}d</td>
                     <td>${formatNum(r.OH_Stock)}</td>
-                    <td style="font-weight: 600;">${formatSAR(r.OH_Valuation_SAR)}</td>
-                    <td>${formatNum(r.OH_CBM)}</td>
+                    <td style="font-weight: 600;">${formatKD(valKd)}</td>
+                    <td>${formatNum(r.OH_CBM)} CBM</td>
                     <td><span class="${atpBadge}">${formatNum(r.ATP_QTY)}</span></td>
                     <td>${r.DoC || 0}d</td>
-                    <td>${formatNum(r.ME2N_Open_PO_Qty)}</td>
+                    <td style="font-weight: 500;">${formatNum(openPoQty)}</td>
+                    <td style="font-weight: 600; color: #E2E8F0;">${formatKD(openPoValKd)}</td>
                     <td>${r.Next_Projected_ATP || 'N/A'}</td>
                     <td>${shortBadge}</td>
                 `;
@@ -2899,8 +3296,8 @@
                 data: {
                     labels: items.map(i => i.Import_Local),
                     datasets: [
-                        { label: 'Total Inbound Value (SAR)', data: items.map(i => i.Total_Value), backgroundColor: '#E2E8F0', borderRadius: 4 },
-                        { label: 'Delayed Value (SAR)', data: items.map(i => i.Delayed_Value), backgroundColor: '#F43F5E', borderRadius: 4 }
+                        { label: 'Total Inbound Value (KD)', data: items.map(i => i.Total_Value), backgroundColor: '#E2E8F0', borderRadius: 4 },
+                        { label: 'Delayed Value (KD)', data: items.map(i => i.Delayed_Value), backgroundColor: '#F43F5E', borderRadius: 4 }
                     ]
                 },
                 options: {
