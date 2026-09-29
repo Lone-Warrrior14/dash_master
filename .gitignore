@@ -17,16 +17,19 @@ temp_processing/
 data.json
 dashboard_data.js
 
-# Data files & Archives
+# Data files, Documents & Archives
 *.xlsx
 *.XLSX
 *.xls
+*.XLS
+*.xlsm
 *.csv
 *.zip
 *.log
 *.ogg
 *.mp3
 *.wav
+*.md
 
 # OS files
 .DS_Store

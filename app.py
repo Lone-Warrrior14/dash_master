@@ -89,8 +89,12 @@ def get_dashboard_data():
     category = request.args.get("category", "ALL")
     country = request.args.get("country", "ALL")
 
-    # If any slicer or reload is requested, compute dynamically
-    if CACHE["data"] is None or reload_data or exclude_new or category != "ALL" or country != "ALL":
+    # If no data has been uploaded yet, return empty state
+    if CACHE["data"] is None:
+        return safe_json_response({"uploaded": False, "message": "No data uploaded yet. Please upload files to process."})
+
+    # If slicers changed and we have cached data
+    if reload_data or exclude_new or category != "ALL" or country != "ALL":
         data = load_default_workspace_data(exclude_new=exclude_new, category=category, country=country)
     else:
         data = CACHE["data"]
@@ -133,7 +137,7 @@ def upload_files():
 @app.route("/api/export-master-excel", methods=["GET"])
 def export_master_excel():
     if CACHE["dfs"] is None:
-        load_default_workspace_data()
+        return jsonify({"status": "error", "message": "No data processed yet. Please upload files first."}), 400
 
     d_tim, d_me, d_fs, d_mb, d_lines, d_so, d_anomalies = CACHE["dfs"]
     excel_stream = generate_master_excel_workbook(d_tim, d_me, d_fs, d_mb, d_lines, d_so, d_anomalies)

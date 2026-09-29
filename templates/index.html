@@ -7,27 +7,53 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-base: #090D16;
-            --bg-card: rgba(17, 24, 39, 0.75);
-            --bg-card-hover: rgba(30, 41, 59, 0.85);
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(59, 130, 246, 0.25);
-            --text-primary: #F8FAFC;
-            --text-secondary: #94A3B8;
-            --text-muted: #64748B;
-            --accent-blue: #3B82F6;
-            --accent-indigo: #6366F1;
+            --bg-base: #0B0D13;
+            --bg-surface: #10131B;
+            --bg-card: #141721;
+            --bg-card-hover: #181C28;
+            --bg-inner: #0D1017;
+            --border-subtle: #1E2330;
+            --border-card: #1C212D;
+            --border-glow: #2A3245;
+
+            --text-primary: #FFFFFF;
+            --text-secondary: #9EABC0;
+            --text-muted: #62718A;
+            --text-dim: #455065;
+
+            /* Accent Colors from the Screenshot */
+            --accent-green: #22C55E;
+            --accent-green-bg: rgba(34, 197, 94, 0.12);
+            --accent-red: #EF4444;
+            --accent-red-bg: rgba(239, 68, 68, 0.12);
+            --accent-purple: #A855F7;
+            --accent-purple-bg: rgba(168, 85, 247, 0.15);
+            --accent-orange: #F97316;
+            --accent-orange-bg: rgba(249, 115, 22, 0.15);
+            --accent-yellow: #EAB308;
+            --accent-yellow-bg: rgba(234, 179, 8, 0.15);
             --accent-teal: #14B8A6;
-            --accent-emerald: #10B981;
-            --accent-amber: #F59E0B;
-            --accent-rose: #F43F5E;
-            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --accent-black: #0B0D13;
+            --accent-charcoal: #181C26;
+            --accent-border: #272F40;
+
+            --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
+
+            --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -43,21 +69,18 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 40%);
-            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* Top Navigation Header */
+        /* Top Navigation Header - Refined Dark Minimalist Command Bar */
         header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 32px;
-            background: rgba(13, 18, 30, 0.8);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border-subtle);
+            padding: 14px 32px;
+            background: #0E1119;
+            border-bottom: 1px solid var(--border-card);
             position: sticky;
             top: 0;
             z-index: 50;
@@ -70,65 +93,92 @@
         }
 
         .logo-symbol {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+            width: 40px;
+            height: 40px;
+            background: #141721;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            font-size: 1.1rem;
-            color: white;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            font-size: 1.15rem;
+            color: #FFFFFF;
+            border: 1px solid #272F40;
+            transition: all 0.2s ease;
+        }
+
+        .logo-symbol:hover {
+            border-color: #475569;
+            background: #1C2230;
         }
 
         .brand-text h1 {
             font-size: 1.15rem;
             font-weight: 700;
             letter-spacing: -0.3px;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-text .bi-tag {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: #22C55E;
+            letter-spacing: 0.4px;
         }
 
         .brand-text span {
             font-size: 0.75rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
+            font-weight: 400;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         /* Filter Toggle Component & Slicers */
         .filter-toggle {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-subtle);
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.82rem;
+            gap: 8px;
+            background: #141721;
+            border: 1px solid var(--border-card);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s ease;
+            user-select: none;
         }
 
         .filter-toggle:hover {
-            border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.05);
+            border-color: #2F374A;
+            color: var(--text-primary);
         }
 
         .filter-toggle input {
-            accent-color: var(--accent-blue);
+            accent-color: var(--accent-green);
             cursor: pointer;
+            width: 14px;
+            height: 14px;
         }
 
         .filter-select {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            padding: 6px 12px;
+            background: #141721;
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 6px 14px;
             color: var(--text-primary);
             font-size: 0.8rem;
             font-weight: 500;
@@ -138,22 +188,24 @@
         }
 
         .filter-select:hover, .filter-select:focus {
-            border-color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.08);
+            border-color: #2F374A;
+            background: #191E2A;
         }
 
         .filter-select option {
-            background: #111827;
-            color: #F8FAFC;
+            background: #141721;
+            color: #FFFFFF;
+            padding: 6px;
         }
 
         .btn-action {
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            padding: 7px 15px;
+            border-radius: 8px;
+            font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
             border: none;
@@ -162,25 +214,27 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
-            color: white;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            background: #11141D;
+            color: #FFFFFF;
+            border: 1px solid #2B3347;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
         }
 
         .btn-primary:hover {
+            background: #181D2A;
+            border-color: #3E4964;
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
+            background: #181C26;
             color: var(--text-primary);
-            border: 1px solid var(--border-subtle);
+            border: 1px solid var(--border-card);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--text-secondary);
+            background: #1E2330;
+            border-color: #2F374A;
         }
 
         /* Main Container */
@@ -192,13 +246,13 @@
             width: 100%;
         }
 
-        /* Tab Navigation Bar */
+        /* Modern Tab Navigation Bar */
         .tab-bar {
             display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--border-card);
+            padding-bottom: 10px;
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: thin;
@@ -209,104 +263,321 @@
         }
 
         .tab-bar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: #1E2330;
             border-radius: 4px;
         }
 
         .tab-btn {
             background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 10px 18px;
-            border-radius: 8px;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 7px 14px;
+            border-radius: 7px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
         }
 
         .tab-btn:hover {
             color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.04);
+            background: #141721;
         }
 
         .tab-btn.active {
-            color: white;
-            background: rgba(59, 130, 246, 0.15);
-            border: 1px solid var(--border-glow);
+            color: #FFFFFF;
+            background: #181C26;
+            border-color: #272F40;
+            font-weight: 600;
         }
 
-        /* Executive Header KPI Grid */
+        /* Top Executive KPI Grid - Exact match with user's screenshot layout */
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .kpi-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 14px;
-            padding: 18px;
-            backdrop-filter: blur(12px);
+            background: #141721;
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 20px 22px;
             position: relative;
-            overflow: hidden;
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            transition: border-color 0.2s ease, transform 0.2s ease;
         }
 
         .kpi-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--border-glow);
+            border-color: #2A3245;
+            background: #161A26;
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 8px;
         }
 
         .kpi-label {
-            font-size: 0.74rem;
+            font-size: 0.82rem;
             color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 500;
+            letter-spacing: -0.1px;
+        }
+
+        /* Icon Container matching user screenshot with rounded dark box & colored icons */
+        .kpi-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: #1B202D;
+            color: #94A3B8;
+            flex-shrink: 0;
+        }
+
+        .kpi-icon.icon-green {
+            background: rgba(34, 197, 94, 0.12);
+            color: #22C55E;
+        }
+
+        .kpi-icon.icon-purple {
+            background: rgba(168, 85, 247, 0.14);
+            color: #C084FC;
+        }
+
+        .kpi-icon.icon-orange {
+            background: rgba(249, 115, 22, 0.14);
+            color: #FB923C;
+        }
+
+        .kpi-icon.icon-black {
+            background: #11141D;
+            color: #FFFFFF;
+            border: 1px solid #2B3347;
+        }
+
+        .kpi-icon.icon-red {
+            background: rgba(239, 68, 68, 0.14);
+            color: #F87171;
         }
 
         .kpi-value {
-            font-size: 1.55rem;
+            font-size: 1.95rem;
             font-weight: 700;
-            color: var(--text-primary);
-            font-family: var(--font-mono);
-            margin-bottom: 4px;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            margin-bottom: 8px;
         }
 
+        /* KPI Meta Subtext matching screenshot format (e.g. +12% from last month) */
         .kpi-meta {
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            font-size: 0.78rem;
             display: flex;
             align-items: center;
             gap: 6px;
+            font-weight: 500;
         }
 
-        .badge-danger {
-            color: #FDA4AF;
-            background: rgba(244, 63, 94, 0.15);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
+        .kpi-meta.meta-positive {
+            color: #22C55E;
         }
 
-        .badge-warning {
-            color: #FDE68A;
-            background: rgba(245, 158, 11, 0.15);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
+        .kpi-meta.meta-negative {
+            color: #EF4444;
         }
 
-        .badge-success {
-            color: #A7F3D0;
-            background: rgba(16, 185, 129, 0.15);
-            padding: 2px 6px;
-            border-radius: 4px;
+        .kpi-meta.meta-neutral {
+            color: var(--text-muted);
+        }
+
+        /* Card Container - sleek rounded rectangular cards with subtle 1px border */
+        .card {
+            background: #141721;
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 22px;
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: #2A3245;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
             font-weight: 600;
+            color: #FFFFFF;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Screenshot dropdown pill for periods like 'Last 6 months' */
+        .card-dropdown {
+            background: #1A1F2C;
+            border: 1px solid var(--border-card);
+            border-radius: 6px;
+            padding: 4px 10px;
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .card-dropdown:hover {
+            border-color: #2F374A;
+            color: #FFFFFF;
+        }
+
+        /* Screenshot 'View All' header action link */
+        .card-action-link {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .card-action-link:hover {
+            color: #FFFFFF;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 310px;
+        }
+
+        /* Status Pills from Screenshot: Hot Lead (Green), Warm (Muted), Cold (Amber) */
+        .lead-pill {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .lead-pill-hot {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .lead-pill-warm {
+            background: rgba(148, 163, 184, 0.12);
+            color: #94A3B8;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .lead-pill-cold {
+            background: rgba(234, 179, 8, 0.15);
+            color: #EAB308;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
+
+        /* Recent Activity / Contact Items from Screenshot */
+        .feed-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+
+        .feed-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feed-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-card);
+        }
+
+        .feed-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .feed-icon.icon-check {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22C55E;
+        }
+
+        .feed-icon.icon-phone {
+            background: rgba(100, 116, 139, 0.15);
+            color: #94A3B8;
+        }
+
+        .feed-icon.icon-mail {
+            background: rgba(168, 85, 247, 0.15);
+            color: #C084FC;
+        }
+
+        .feed-text h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            line-height: 1.2;
+        }
+
+        .feed-text p {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            margin-top: 2px;
         }
 
         /* Charts Row Grid */
@@ -341,129 +612,207 @@
             border: 1px solid var(--border-subtle);
             border-radius: 16px;
             padding: 24px;
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.14);
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 12px;
         }
 
         .card-title {
-            font-size: 1rem;
+            font-family: var(--font-display);
+            font-size: 1.02rem;
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .card-desc {
-            font-size: 0.78rem;
+            font-size: 0.77rem;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
         .chart-container {
             position: relative;
             width: 100%;
-            height: 300px;
+            height: 310px;
         }
 
-        /* Data Tables */
+        /* Enterprise BI Data Tables */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
             border-radius: 10px;
+            border: 1px solid var(--border-subtle);
+            background: rgba(8, 13, 24, 0.5);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.83rem;
             text-align: left;
         }
 
         th {
-            background: rgba(30, 41, 59, 0.5);
+            background: rgba(15, 23, 42, 0.8);
             color: var(--text-secondary);
             font-weight: 600;
-            padding: 12px 14px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border-subtle);
             text-transform: uppercase;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
+            font-size: 0.69rem;
+            letter-spacing: 0.6px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         td {
-            padding: 12px 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
             color: var(--text-primary);
+            transition: background 0.15s ease;
         }
 
         tr:hover td {
             background: rgba(255, 255, 255, 0.02);
         }
 
-        /* Modal Overlay for File Upload */
+        /* Professional Modal Dialog */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
+            background: rgba(3, 7, 18, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 100;
+            padding: 20px;
         }
 
         .modal.active {
             display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .modal-card {
-            background: #0F172A;
-            border: 1px solid var(--border-subtle);
+            background: #0E1119;
+            border: 1px solid #1C212D;
             border-radius: 20px;
             width: 100%;
-            max-width: 650px;
-            padding: 32px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 780px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 34px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .modal-card::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 680px) {
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .upload-slot {
-            margin-bottom: 14px;
+            background: #141721;
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: all 0.2s ease;
+        }
+
+        .upload-slot:hover {
+            border-color: #2F374A;
+            background: #181C28;
         }
 
         .upload-slot label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upload-slot .slot-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
         }
 
         .upload-slot input {
             width: 100%;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px dashed var(--border-subtle);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.8rem;
+            padding: 7px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            cursor: pointer;
         }
 
+        .upload-slot input:hover {
+            border-color: #475569;
+            color: var(--text-primary);
+        }
+
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(9, 13, 22, 0.85);
-            backdrop-filter: blur(10px);
+            background: rgba(6, 11, 20, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             display: none;
             flex-direction: column;
             align-items: center;
@@ -472,13 +821,14 @@
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(59, 130, 246, 0.2);
-            border-top-color: var(--accent-blue);
+            width: 56px;
+            height: 56px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #FFFFFF;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 16px;
+            animation: spin 0.85s linear infinite;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
         }
 
         @keyframes spin {
@@ -488,174 +838,270 @@
 </head>
 <body>
 
-    <!-- Header Navigation -->
+    <!-- Header Navigation - Enterprise Executive BI Command Center -->
     <header>
         <div class="brand-block">
-            <div class="logo-symbol">SC</div>
+            <div class="logo-symbol">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
             <div class="brand-text">
-                <h1>Unified Supply Chain Intelligence</h1>
-                <span>Enterprise Multi-Source Master Analytics</span>
+                <h1>
+                    Unified Supply Chain BI
+                    <span class="bi-tag">ENTERPRISE 360°</span>
+                </h1>
+                <span>Cross-Functional Commercial, Logistics & Manufacturing Intelligence</span>
             </div>
         </div>
 
         <div class="header-actions">
             <!-- Global Slicers -->
-            <select class="filter-select" id="categoryFilter" onchange="applyGlobalFilters()" title="Filter by Product Category">
-                <option value="ALL">All Categories</option>
-                <option value="KITCHEN">Kitchens</option>
-                <option value="DOORS & WINDOWS">Doors & Windows</option>
-                <option value="KITCHEN PROJECT">Kitchen Project</option>
-                <option value="FURNITURE">Furniture</option>
-            </select>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-layer-group" style="font-size: 0.75rem; color: var(--text-muted);"></i>
+                <select class="filter-select" id="categoryFilter" onchange="applyGlobalFilters()" title="Filter by Product Category">
+                    <option value="ALL">All Product Categories</option>
+                    <option value="KITCHEN">Kitchens</option>
+                    <option value="DOORS & WINDOWS">Doors & Windows</option>
+                    <option value="KITCHEN PROJECT">Kitchen Project</option>
+                    <option value="FURNITURE">Furniture</option>
+                </select>
+            </div>
 
-            <select class="filter-select" id="countryFilter" onchange="applyGlobalFilters()" title="Filter by Market Country">
-                <option value="ALL">All Countries</option>
-                <option value="Kuwait">Kuwait</option>
-                <option value="Saudi Arabia">Saudi Arabia</option>
-            </select>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-globe" style="font-size: 0.75rem; color: var(--text-muted);"></i>
+                <select class="filter-select" id="countryFilter" onchange="applyGlobalFilters()" title="Filter by Market Destination Country">
+                    <option value="ALL">All Destination Countries</option>
+                    <option value="Kuwait">Kuwait</option>
+                    <option value="Saudi Arabia">Saudi Arabia</option>
+                </select>
+            </div>
 
             <!-- Voice Note Filter: Article Status Toggle -->
             <label class="filter-toggle" title="Exclude newly introduced catalog items with zero demand history from replenishment run-rates">
                 <input type="checkbox" id="excludeNewStatusToggle" onchange="toggleExcludeNew(this.checked)">
-                <span>Exclude 'New' Assortment</span>
+                <span>Exclude 'New' SKU Runrates</span>
             </label>
 
             <!-- Actions -->
             <button class="btn-action btn-secondary" onclick="openUploadModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <i class="fa-solid fa-cloud-arrow-up"></i>
                 Upload Datasets
             </button>
 
             <a href="/api/export-master-excel" class="btn-action btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <i class="fa-solid fa-file-excel"></i>
                 Export Master Excel (.xlsx)
             </a>
         </div>
     </header>
 
     <main>
-        <!-- Top Executive KPI Ribbon -->
+        <!-- Welcome / Empty State Prompt before upload (Styled with modern SaaS Template UI) -->
+        <div id="emptyStatePlaceholder" class="relative flex flex-col items-center justify-start px-4 py-16 md:py-20 text-center" style="animation: fadeIn 0.6s ease-out;">
+            <!-- Badge -->
+            <aside class="mb-6 inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-gray-700 bg-gray-800/60 backdrop-blur-sm">
+                <span class="text-xs text-gray-400">
+                    Unified Supply Chain Intelligence v2.0
+                </span>
+                <a href="javascript:void(0)" onclick="openUploadModal()" class="flex items-center gap-1 text-xs text-sky-400 hover:text-white transition-all">
+                    Upload your files
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </aside>
+
+            <!-- Headline with Gradient text -->
+            <h1 class="text-3xl md:text-5xl lg:text-6xl font-semibold text-center max-w-4xl px-4 leading-tight mb-6" style="background: linear-gradient(to bottom, #ffffff, #ffffff, rgba(255, 255, 255, 0.65)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.04em;">
+                Give your supply chain <br />the intelligence it deserves
+            </h1>
+
+            <p class="text-sm md:text-base text-gray-400 text-center max-w-2xl px-6 mb-8 leading-relaxed">
+                Consolidated cross-functional intelligence with real-time ATP replenishment, ME2N procurement horizons, MB52 warehouse allocations, and milestone tracking.
+            </p>
+
+            <!-- Action buttons -->
+            <div class="flex items-center gap-4 relative z-10 mb-12">
+                <button
+                    type="button"
+                    onclick="openUploadModal()"
+                    class="h-12 px-8 text-base inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-gradient-to-b from-white via-white/95 to-white/70 text-black hover:scale-105 active:scale-95 shadow-xl shadow-sky-500/10 cursor-pointer"
+                >
+                    <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                    Upload Datasets Now
+                </button>
+            </div>
+
+            <!-- Preview Card Container -->
+            <div class="w-full max-w-5xl relative pb-10">
+                <div class="absolute left-1/2 w-[85%] pointer-events-none z-0 -top-12 -translate-x-1/2" aria-hidden="true">
+                    <div class="w-full h-48 bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-purple-500/20 blur-3xl rounded-full"></div>
+                </div>
+                
+                <div class="relative z-10 rounded-2xl p-6 bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl shadow-2xl">
+                    <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/5">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                            <span class="text-xs text-slate-400 font-mono ml-2">master-analytics.saas</span>
+                        </div>
+                        <div class="text-xs text-sky-400/80 flex items-center gap-1.5 font-medium">
+                            <i class="fa-solid fa-shield-halved"></i> Ready for Data Ingestion
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-left">
+                        <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">1. TIM Catalog</span>
+                            <span class="text-xs text-slate-200 mt-1 block">Articles & ATP</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">2. ME2N Orders</span>
+                            <span class="text-xs text-slate-200 mt-1 block">Open PO Lines</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">3. Freight Status</span>
+                            <span class="text-xs text-slate-200 mt-1 block">Transit Tracking</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">4. MB52 Stocks</span>
+                            <span class="text-xs text-slate-200 mt-1 block">Storage Bins</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">5. PLNORDR</span>
+                            <span class="text-xs text-slate-200 mt-1 block">Planned MRP</span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                            <span class="text-[10px] text-slate-400 block font-semibold uppercase">6. PRDORDR</span>
+                            <span class="text-xs text-slate-200 mt-1 block">Shop Assembly</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+        <!-- Executive BI Status Strip -->
+        <div class="bi-status-strip">
+            <div>
+                <span class="pulse-indicator"></span>
+                <strong>Live Model Loaded</strong> &mdash; Harmonized ERP, Warehouse & Logistics Streams
+            </div>
+            <div style="display: flex; gap: 18px; align-items: center;">
+                <span><i class="fa-solid fa-database" style="margin-right: 5px;"></i> Currency: <strong>SAR (Saudi Riyals)</strong></span>
+                <span><i class="fa-solid fa-clock" style="margin-right: 5px;"></i> Multi-Source Harmonization: <strong>Active</strong></span>
+            </div>
+        </div>
+
+        <!-- Top Executive KPI Ribbon (Matches screenshot dark card UI with icon badges) -->
         <section class="kpi-grid">
             <div class="kpi-card">
-                <div class="kpi-label">Total Inventory Valuation</div>
+                <div class="kpi-header">
+                    <div class="kpi-label">Total On-Hand Valuation</div>
+                    <div class="kpi-icon"><i class="fa-solid fa-coins"></i></div>
+                </div>
                 <div class="kpi-value" id="kpiValuation">--</div>
-                <div class="kpi-meta"><span class="badge-success">On-Hand Assets</span> Saudi Riyals (SAR)</div>
+                <div class="kpi-meta" style="color: var(--text-muted);">
+                    <i class="fa-solid fa-shield-halved text-xs" style="color: #94A3B8;"></i>
+                    <span>TIM Master Valuation in SAR</span>
+                </div>
             </div>
 
             <div class="kpi-card">
-                <div class="kpi-label">Warehouse Space (CBM)</div>
+                <div class="kpi-header">
+                    <div class="kpi-label">Warehouse Space Occupied</div>
+                    <div class="kpi-icon icon-green"><i class="fa-solid fa-cubes"></i></div>
+                </div>
                 <div class="kpi-value" id="kpiCBM">--</div>
-                <div class="kpi-meta">Cubic Meters Occupied</div>
+                <div class="kpi-meta" style="color: var(--accent-green);">
+                    <i class="fa-solid fa-warehouse text-xs"></i>
+                    <span>Total Physical Volume (m³)</span>
+                </div>
             </div>
 
             <div class="kpi-card">
-                <div class="kpi-label">At-Risk ATP SKUs (&lt;30)</div>
-                <div class="kpi-value" id="kpiAtpRisk">--</div>
-                <div class="kpi-meta"><span class="badge-danger">Cumulative Threat</span> &lt; 30 ATP</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">Unlagged Placed PO Value</div>
-                <div class="kpi-value" id="kpiMe2nVal">--</div>
-                <div class="kpi-meta"><span class="badge-warning">ME2N Preferred</span> Point-of-Placement</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">Logistics Capital at Risk</div>
+                <div class="kpi-header">
+                    <div class="kpi-label">Logistics Capital at Risk</div>
+                    <div class="kpi-icon icon-purple"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                </div>
                 <div class="kpi-value" id="kpiDelayedVal">--</div>
-                <div class="kpi-meta"><span class="badge-danger" id="kpiDelayRate">--%</span> Delay Rate (SAR)</div>
+                <div class="kpi-meta" style="color: var(--accent-red);">
+                    <i class="fa-solid fa-truck-ramp-box text-xs"></i>
+                    <span id="kpiDelayRate">-- Delay Rate</span>
+                </div>
             </div>
 
             <div class="kpi-card">
-                <div class="kpi-label">Active Shop-Floor Shortage</div>
-                <div class="kpi-value" id="kpiShortageQty">--</div>
-                <div class="kpi-meta">Missing Component Units</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">Sales Order Delivery Readiness</div>
+                <div class="kpi-header">
+                    <div class="kpi-label">SO Delivery Readiness</div>
+                    <div class="kpi-icon icon-orange"><i class="fa-solid fa-boxes-packing"></i></div>
+                </div>
                 <div class="kpi-value" id="kpiSoReadiness">--</div>
-                <div class="kpi-meta"><span class="badge-success">100% Ready</span> Customer Contracts</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">Days of Coverage (DoC)</div>
-                <div class="kpi-value" id="kpiDoC">--</div>
-                <div class="kpi-meta">Demand Sales Runway Days</div>
+                <div class="kpi-meta" style="color: var(--accent-orange);">
+                    <i class="fa-solid fa-clipboard-check text-xs"></i>
+                    <span>Customer Orders Fully Covered</span>
+                </div>
             </div>
         </section>
 
+        <!-- Secondary Operational Metric Bar -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;">
+            <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">At-Risk ATP (&lt;30)</span>
+                    <span id="kpiAtpRisk" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">--</span>
+                </div>
+                <span class="lead-pill lead-pill-cold">ATP Buffer</span>
+            </div>
+            <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Unlagged PO Value (ME2N)</span>
+                    <span id="kpiMe2nVal" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">--</span>
+                </div>
+                <span class="lead-pill lead-pill-warm">Committed</span>
+            </div>
+            <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Active Shop Shortage</span>
+                    <span id="kpiShortageQty" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">--</span>
+                </div>
+                <span class="lead-pill lead-pill-hot">Production</span>
+            </div>
+            <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Days of Coverage</span>
+                    <span id="kpiDoC" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">--</span>
+                </div>
+                <span class="lead-pill lead-pill-warm">Runway</span>
+            </div>
+        </div>
+
         <!-- View Tab Navigation (All 10 Excel Sheets Interactive) -->
         <nav class="tab-bar">
-            <button class="tab-btn active" onclick="switchView('tabExecutive', this)">1. Commercial Summary</button>
-            <button class="tab-btn" onclick="switchView('tabAtpRisk', this)">2. ATP Risk Matrix</button>
-            <button class="tab-btn" onclick="switchView('tabProcurement', this)">3. Early PO Pipeline (ME2N)</button>
-            <button class="tab-btn" onclick="switchView('tabLogistics', this)">4. Logistics Delays (Freight)</button>
-            <button class="tab-btn" onclick="switchView('tabWarehouseBins', this)">5. Warehouse Bins (MB52)</button>
-            <button class="tab-btn" onclick="switchView('tabManufacturing', this)">6. Shop Shortages (Orders)</button>
-            <button class="tab-btn" onclick="switchView('tabSoFulfillment', this)">7. SO Delivery Readiness</button>
-            <button class="tab-btn" onclick="switchView('tabFifoDepletion', this)">8. FIFO Depletion Timeline</button>
-            <button class="tab-btn" onclick="switchView('tabMasterData', this)">9. Master Catalog</button>
-            <button class="tab-btn" onclick="switchView('tabAnomalies', this)">10. Compliance Audit Log</button>
+            <button class="tab-btn active" onclick="switchView('tabExecutive', this)"><i class="fa-solid fa-gauge-high"></i> 1. Commercial Summary</button>
+            <button class="tab-btn" onclick="switchView('tabAtpRisk', this)"><i class="fa-solid fa-triangle-exclamation"></i> 2. ATP Risk Matrix</button>
+            <button class="tab-btn" onclick="switchView('tabProcurement', this)"><i class="fa-solid fa-file-invoice-dollar"></i> 3. Early PO Pipeline (ME2N)</button>
+            <button class="tab-btn" onclick="switchView('tabLogistics', this)"><i class="fa-solid fa-truck-fast"></i> 4. Logistics Delays (Freight)</button>
+            <button class="tab-btn" onclick="switchView('tabWarehouseBins', this)"><i class="fa-solid fa-warehouse"></i> 5. Warehouse Bins (MB52)</button>
+            <button class="tab-btn" onclick="switchView('tabManufacturing', this)"><i class="fa-solid fa-industry"></i> 6. Shop Shortages (Orders)</button>
+            <button class="tab-btn" onclick="switchView('tabSoFulfillment', this)"><i class="fa-solid fa-dolly"></i> 7. SO Delivery Readiness</button>
+            <button class="tab-btn" onclick="switchView('tabFifoDepletion', this)"><i class="fa-solid fa-timeline"></i> 8. FIFO Depletion Timeline</button>
+            <button class="tab-btn" onclick="switchView('tabMasterData', this)"><i class="fa-solid fa-table-list"></i> 9. Master Catalog</button>
+            <button class="tab-btn" onclick="switchView('tabAnomalies', this)"><i class="fa-solid fa-clipboard-check"></i> 10. Compliance Audit Log</button>
         </nav>
 
-        <!-- VIEW 1: COMMERCIAL & DEMAND -->
+        <!-- VIEW 1: COMMERCIAL & DEMAND (Arranged like screenshot: Line chart with dropdown + Donut with View All + Feed widgets) -->
         <div id="tabExecutive" class="view-panel">
-            <div class="chart-row">
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">ATP Risk Distribution (Audio Note)</div>
-                                <div class="card-desc">Negative (&lt;0), Critical (0-30), Healthy (&gt;30)</div>
-                            </div>
-                            <label class="filter-toggle" style="padding: 4px 10px; font-size: 0.75rem;" title="Audio Note Requirement: Combine Negative and 0-30 into single combined at-risk bucket (<30)">
-                                <input type="checkbox" id="cumulativeAtpToggle" onchange="toggleCumulativeAtp(this.checked)">
-                                <span>Cumulative &lt;30</span>
-                            </label>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="chartAtpRisk"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">Article Lifecycle Assortment</div>
-                                <div class="card-desc">Active vs. Discontinued vs. New catalog items</div>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="chartArticleStatus"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div>
-                                <div class="card-title">Warehouse CBM Space Allocation</div>
-                                <div class="card-desc">Physical space occupied by Country & Category (m³)</div>
-                            </div>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="chartCbmSpace"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <!-- Row 1: Left Line Chart (Revenue Overview style) + Right Donut Chart (Deal Pipeline style) -->
             <div class="chart-row">
                 <div class="col-6">
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <div class="card-title">Commercial Stock Balance Equation</div>
-                                <div class="card-desc">On-Hand vs. Open Sales Committed vs. ATP Stock vs. Inbound Next Month</div>
+                                <div class="card-title">Commercial Trajectory Overview</div>
+                                <div class="card-desc">Monthly demand run-rate vs cumulative fulfilled stock</div>
+                            </div>
+                            <div class="card-dropdown">
+                                <span>Last 6 months</span>
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
                             </div>
                         </div>
                         <div class="chart-container">
@@ -668,8 +1114,58 @@
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <div class="card-title">Supplier Lead Time vs. Days of Coverage (DoC)</div>
-                                <div class="card-desc">4-Quadrant Scatter (Bubble size = Inventory Valuation KD)</div>
+                                <div class="card-title">ATP Pipeline & Risk Segmentation</div>
+                                <div class="card-desc">Negative Stockouts, Critical (0-30), and Healthy (&ge;30)</div>
+                            </div>
+                            <a href="javascript:void(0)" onclick="switchView('tabAtpRisk', document.querySelectorAll('.tab-btn')[1])" class="card-action-link">
+                                View All
+                            </a>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chartAtpRisk"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytical Charts -->
+
+            <!-- Row 3: Additional analytical depth -->
+            <div class="chart-row">
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Article Lifecycle Assortment</div>
+                                <div class="card-desc">Active vs. Discontinued vs. New items</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chartArticleStatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Warehouse CBM Allocation</div>
+                                <div class="card-desc">Physical space occupied by Country & Category (m³)</div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chartCbmSpace"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Lead Time vs. DoC Quadrants</div>
+                                <div class="card-desc">Supplier Lead Time vs Sales Runway Days</div>
                             </div>
                         </div>
                         <div class="chart-container">
@@ -781,7 +1277,7 @@
                         </div>
                         <div style="font-size: 0.84rem; line-height: 1.6; color: var(--text-secondary); padding: 8px 0;">
                             <p style="margin-bottom: 10px;">• <strong style="color: var(--text-primary);">Point-of-Placement:</strong> Captures POs immediately upon SAP creation before freight carrier booking.</p>
-                            <p style="margin-bottom: 10px;">• <strong style="color: var(--text-primary);">Derived ATP Date:</strong> <code style="font-family: var(--font-mono); color: var(--accent-blue); background: rgba(59,130,246,0.1); padding: 2px 6px; border-radius: 4px;">Doc Date + Lead Time</code></p>
+                            <p style="margin-bottom: 10px;">• <strong style="color: var(--text-primary);">Derived ATP Date:</strong> <code style="font-family: var(--font-mono); color: #F8FAFC; background: #181C26; border: 1px solid #2B3347; padding: 2px 6px; border-radius: 4px;">Doc Date + Lead Time</code></p>
                             <p>• <strong style="color: var(--text-primary);">Zero Carrier Lag:</strong> Forecasts early warehouse arrival windows without waiting for freight documents.</p>
                         </div>
                     </div>
@@ -1331,43 +1827,98 @@
                 </div>
             </div>
         </div>
+        </div>
     </main>
 
-    <!-- Upload Datasets Modal -->
+    <!-- Upload Datasets Modal - Executive Data Ingestion Command -->
     <div class="modal" id="uploadModal">
         <div class="modal-card">
-            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">Upload Custom Supply Chain Datasets</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px;">Upload any updated or newly exported Excel files with identical headers. The platform automatically harmonizes new records, recalculates ATP forecasts, delays, and shortages.</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div>
+                    <h2 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-cloud-arrow-up" style="color: #FFFFFF;"></i>
+                        Ingest Supply Chain Datasets
+                    </h2>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
+                        Select fresh or revised Excel export spreadsheets. The BI pipeline automatically matches columns, calculates ATP thresholds, cross-references transit milestones, and flags manufacturing shortages.
+                    </p>
+                </div>
+                <button onclick="closeUploadModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 4px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
             <form id="uploadForm" onsubmit="handleUpload(event)">
-                <div class="upload-slot">
-                    <label>1. TIM Master Catalog (Articles, Lead Times, OH Valuation, ATP)</label>
-                    <input type="file" name="file_tim" accept=".xlsx,.xls">
-                </div>
-                <div class="upload-slot">
-                    <label>2. ME2N Open POs (Purchasing Doc, Open Qty, Document Date)</label>
-                    <input type="file" name="file_me2n" accept=".xlsx,.xls">
-                </div>
-                <div class="upload-slot">
-                    <label>3. Freight Status Report (Container Tracking, Milestones & Delays)</label>
-                    <input type="file" name="file_fs" accept=".xlsx,.xls">
-                </div>
-                <div class="upload-slot">
-                    <label>4. MB52 Warehouse Stock (Plant Inventory by Storage Bin Location)</label>
-                    <input type="file" name="file_mb52" accept=".xlsx,.xls">
-                </div>
-                <div class="upload-slot">
-                    <label>5. PLNORDR Planned Orders (MRP Planned Component Demand)</label>
-                    <input type="file" name="file_pln" accept=".xlsx,.xls">
-                </div>
-                <div class="upload-slot">
-                    <label>6. PRDORDR Active Production (Shop-Floor Work Orders)</label>
-                    <input type="file" name="file_prd" accept=".xlsx,.xls">
+                <div class="upload-grid">
+                    <div class="upload-slot">
+                        <label>
+                            <i class="fa-solid fa-boxes-stacked" style="color: #94A3B8;"></i>
+                            1. TIM Master Catalog
+                        </label>
+                        <span class="slot-desc">Article IDs, Category, Country, Supplier, Lead Times, OH Valuation & ATP</span>
+                        <input type="file" name="file_tim" accept=".xlsx,.xls">
+                    </div>
+
+                    <div class="upload-slot">
+                        <label>
+                            <i class="fa-solid fa-file-invoice-dollar" style="color: #94A3B8;"></i>
+                            2. ME2N Open Purchase Orders
+                        </label>
+                        <span class="slot-desc">Purchasing Doc, Open Inbound Qty, Document Date, Vendor & Net Price</span>
+                        <input type="file" name="file_me2n" accept=".xlsx,.xls">
+                    </div>
+
+                    <div class="upload-slot">
+                        <label>
+                            <i class="fa-solid fa-ship" style="color: #94A3B8;"></i>
+                            3. Freight Status Report
+                        </label>
+                        <span class="slot-desc">Container Tracking, Milestones (BAYAN, GRP, ATP Target) & Transit Delays</span>
+                        <input type="file" name="file_fs" accept=".xlsx,.xls">
+                    </div>
+
+                    <div class="upload-slot">
+                        <label>
+                            <i class="fa-solid fa-warehouse" style="color: #94A3B8;"></i>
+                            4. MB52 Warehouse Stock
+                        </label>
+                        <span class="slot-desc">Plant Storage Location, Available On-Hand Stock & Bin Allocation</span>
+                        <input type="file" name="file_mb52" accept=".xlsx,.xls">
+                    </div>
+
+                    <div class="upload-slot">
+                        <label>
+                            <i class="fa-solid fa-calendar-check" style="color: #94A3B8;"></i>
+                            5. PLNORDR Planned Orders
+                        </label>
+                        <span class="slot-desc">MRP Planned Work Orders, Scheduled Requirements & Component Demand</span>
+                        <input type="file" name="file_pln" accept=".xlsx,.xls">
+                    </div>
+
+                    <div class="upload-slot">
+                        <label>
+                            <i class="fa-solid fa-gears" style="color: #94A3B8;"></i>
+                            6. PRDORDR Active Production
+                        </label>
+                        <span class="slot-desc">Shop-Floor Released Work Orders & Active Assembly Reservations</span>
+                        <input type="file" name="file_prd" accept=".xlsx,.xls">
+                    </div>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
-                    <button type="button" class="btn-action btn-secondary" onclick="closeUploadModal()">Cancel</button>
-                    <button type="submit" class="btn-action btn-primary">Process & Harmonize Data</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+                    <div style="font-size: 0.76rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-circle-info" style="color: #94A3B8;"></i>
+                        Accepts .xlsx or .xls standard ERP and WMS formats
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-action btn-secondary" onclick="closeUploadModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-action btn-primary">
+                            <i class="fa-solid fa-play"></i>
+                            Process & Harmonize Analytics
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -1383,6 +1934,21 @@
     <!-- Client Script -->
     <script>
         let charts = {};
+
+        // Apply enterprise Power BI global styling to Chart.js
+        if (window.Chart) {
+            Chart.defaults.color = '#94A3B8';
+            Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+            Chart.defaults.font.size = 11;
+            Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(10, 16, 29, 0.95)';
+            Chart.defaults.plugins.tooltip.titleColor = '#F8FAFC';
+            Chart.defaults.plugins.tooltip.bodyColor = '#94A3B8';
+            Chart.defaults.plugins.tooltip.borderColor = 'rgba(56, 189, 248, 0.3)';
+            Chart.defaults.plugins.tooltip.borderWidth = 1;
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.tooltip.cornerRadius = 8;
+            Chart.defaults.plugins.tooltip.boxPadding = 4;
+        }
 
         function showLoading(show) {
             document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
@@ -1452,12 +2018,16 @@
         }
 
         function toggleExcludeNew(checked) {
-            fetchDashboard(checked);
+            if (latestPayload) {
+                fetchDashboard(checked);
+            }
         }
 
         function applyGlobalFilters() {
-            // When user changes category or country slicer, trigger full dashboard recalculation
-            fetchDashboard();
+            // When user changes category or country slicer, trigger full dashboard recalculation only if data is already loaded
+            if (latestPayload) {
+                fetchDashboard();
+            }
         }
 
         async function handleUpload(e) {
@@ -1480,6 +2050,15 @@
         }
 
         function renderDashboard(payload) {
+            if (!payload || payload.uploaded === false) {
+                return;
+            }
+
+            const emptyPlaceholder = document.getElementById('emptyStatePlaceholder');
+            const dashboardContent = document.getElementById('dashboardContent');
+            if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
+            if (dashboardContent) dashboardContent.style.display = 'block';
+
             latestPayload = payload;
             const k = payload.kpis || {};
             const c = payload.charts || {};
@@ -1534,7 +2113,7 @@
 
             // Chart 1.2: Article Status Lifecycle Donut
             if (c.article_status_distribution && c.article_status_distribution.length > 0) {
-                const palette = ['#3B82F6', '#64748B', '#10B981', '#F59E0B', '#8B5CF6'];
+                const palette = ['#94A3B8', '#64748B', '#10B981', '#F59E0B', '#8B5CF6'];
                 renderDonut('chartArticleStatus', c.article_status_distribution.map((it, idx) => ({
                     label: it.label,
                     value: it.value,
@@ -1584,7 +2163,7 @@
 
             // Chart 2.2: ME2N Spend by Currency (Donut)
             if (c.me2n_spend_by_currency) {
-                const currColors = { 'USD': '#10B981', 'SAR': '#3B82F6', 'KWD': '#F59E0B', 'EUR': '#8B5CF6', 'AED': '#EC4899' };
+                const currColors = { 'USD': '#10B981', 'SAR': '#E2E8F0', 'KWD': '#F59E0B', 'EUR': '#8B5CF6', 'AED': '#EC4899' };
                 renderDonut('chartCurrencySpend', c.me2n_spend_by_currency.map(i => ({
                     label: `${i.Currency} (${formatNum(i.Committed_Val)})`,
                     value: i.Committed_Val,
@@ -1594,7 +2173,7 @@
 
             // Chart 2.3: Top 10 Procurement Suppliers by Open Value (Horizontal Bar)
             if (c.me2n_top_vendors) {
-                renderHorizontalBar('chartTopVendorsProc', c.me2n_top_vendors, 'Name of Vendor', 'Committed_Val', 'Open Procurement Value', '#3B82F6');
+                renderHorizontalBar('chartTopVendorsProc', c.me2n_top_vendors, 'Name of Vendor', 'Committed_Val', 'Open Procurement Value', '#E2E8F0');
             }
 
             // Chart 3.1: Milestone Delays Waterfall
@@ -1721,7 +2300,7 @@
                 const sevBadge = r.Severity === 'Severe' ? 'badge-danger' : 'badge-warning';
                 tr.innerHTML = `
                     <td style="font-family: var(--font-mono); font-weight: 600;">${r['PO#'] || 'N/A'}</td>
-                    <td style="font-family: var(--font-mono); color: var(--accent-blue);">${r.Article || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); color: #F8FAFC;">${r.Article || 'N/A'}</td>
                     <td style="font-weight: 500;">${r.Vendor || 'N/A'}</td>
                     <td>${r.Category || 'N/A'}</td>
                     <td>${r.Import_Local || 'Import'}</td>
@@ -1745,7 +2324,7 @@
                     labels: items.map(i => i.rule),
                     datasets: [{
                         data: items.map(i => i.count),
-                        backgroundColor: ['#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#3B82F6', '#64748B'],
+                        backgroundColor: ['#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#475569', '#64748B'],
                         borderWidth: 0
                     }]
                 },
@@ -1780,7 +2359,7 @@
             rows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-weight: 700; color: var(--accent-blue);">${r.Category}</td>
+                    <td style="font-weight: 700; color: #FFFFFF;">${r.Category}</td>
                     <td>${formatNum(r.Total_Articles)}</td>
                     <td>${formatNum(r.OH_Stock)}</td>
                     <td style="font-weight: 600;">${formatSAR(r.OH_Valuation_SAR)}</td>
@@ -1822,7 +2401,7 @@
                     <td style="font-family: var(--font-mono); font-weight: 600;">${r['Purchasing Document'] || 'N/A'}</td>
                     <td>${r['Document Date'] || 'N/A'}</td>
                     <td style="font-weight: 500;">${r['Name of Vendor'] || 'N/A'}</td>
-                    <td style="font-family: var(--font-mono); color: var(--accent-blue);">${r.Article || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); color: #F8FAFC;">${r.Article || 'N/A'}</td>
                     <td style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${r.ArticleDesc || ''}">${r.ArticleDesc || 'N/A'}</td>
                     <td>${formatNum(r['Order Quantity'])}</td>
                     <td>${formatNum(r['Still to be delivered (qty)'])}</td>
@@ -1846,7 +2425,7 @@
                 const isDelayed = (r['Over All Delay'] || 0) > 0;
                 tr.innerHTML = `
                     <td style="font-family: var(--font-mono); font-weight: 600;">${r['PO#'] || 'N/A'}</td>
-                    <td style="font-family: var(--font-mono); color: var(--accent-blue);">${r.Article || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); color: #F8FAFC;">${r.Article || 'N/A'}</td>
                     <td>${r.Category || 'N/A'}</td>
                     <td style="font-weight: 500;">${r['Vendor Name'] || 'N/A'}</td>
                     <td>${r['Vendor Ctry'] || 'N/A'}</td>
@@ -1871,7 +2450,7 @@
             rows.forEach(r => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td style="font-family: var(--font-mono); font-weight: 600; color: var(--accent-blue);">${r.Article || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); font-weight: 600; color: #F8FAFC;">${r.Article || 'N/A'}</td>
                     <td style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${r['Material Description'] || ''}">${r['Material Description'] || 'N/A'}</td>
                     <td><span class="badge-neutral">${r.Site || 'N/A'}</span></td>
                     <td style="font-family: var(--font-mono); font-weight: 600;">${r['Storage Location'] || 'N/A'}</td>
@@ -1896,7 +2475,7 @@
                     <td><span class="badge-warning">${r.Order_Type || 'PRD'}</span></td>
                     <td style="font-family: var(--font-mono); font-weight: 600;">${r['Sales Document'] || 'N/A'}</td>
                     <td style="font-family: var(--font-mono);">${r.Order || 'N/A'}</td>
-                    <td style="font-family: var(--font-mono); color: var(--accent-blue);">${r.Article || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); color: #F8FAFC;">${r.Article || 'N/A'}</td>
                     <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${r['Material Description'] || ''}">${r['Material Description'] || 'N/A'}</td>
                     <td>${r['Requirement date'] || 'N/A'}</td>
                     <td>${formatNum(r['Requirement quantity (EINHEIT)'])}</td>
@@ -1919,7 +2498,7 @@
                 const isReady = r.Fulfillment_Pct >= 100;
                 const statusBadge = isReady ? 'badge-success' : (r.Fulfillment_Pct > 0 ? 'badge-warning' : 'badge-danger');
                 tr.innerHTML = `
-                    <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-blue);">${r['Sales Document'] || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); font-weight: 700; color: #F8FAFC;">${r['Sales Document'] || 'N/A'}</td>
                     <td>${r.Total_Lines || 0}</td>
                     <td>${formatNum(r.Total_Ordered_Qty)}</td>
                     <td>${formatNum(r.Deliverable_Qty)}</td>
@@ -1942,7 +2521,7 @@
                 const tr = document.createElement('tr');
                 const statusBadge = r.Line_Status === 'FULLY COVERED ON TIME' ? 'badge-success' : 'badge-danger';
                 tr.innerHTML = `
-                    <td style="font-family: var(--font-mono); font-weight: 600; color: var(--accent-blue);">${r.Article_Key || 'N/A'}</td>
+                    <td style="font-family: var(--font-mono); font-weight: 600; color: #F8FAFC;">${r.Article_Key || 'N/A'}</td>
                     <td style="font-family: var(--font-mono);">${r['Sales Document'] || 'N/A'}</td>
                     <td style="font-family: var(--font-mono);">${r.Order || 'N/A'}</td>
                     <td>${r['Requirement date'] || 'N/A'}</td>
@@ -1982,7 +2561,7 @@
                 const atpBadge = r.ATP_QTY < 0 ? 'badge-danger' : (r.ATP_QTY < 30 ? 'badge-warning' : 'badge-success');
                 const shortBadge = r.Shortage_Qty > 0 ? `<span class="badge-danger">${formatNum(r.Shortage_Qty)}</span>` : '<span style="color:var(--text-muted)">0</span>';
                 tr.innerHTML = `
-                    <td style="font-family: var(--font-mono); font-weight: 600; color: var(--accent-blue);">${r.Article_Key}</td>
+                    <td style="font-family: var(--font-mono); font-weight: 600; color: #F8FAFC;">${r.Article_Key}</td>
                     <td style="font-weight: 500; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${r.ArticleDesc || ''}">${r.ArticleDesc || 'N/A'}</td>
                     <td>${r.Category || 'N/A'}</td>
                     <td><span class="badge-neutral">${r.Status || 'Active'}</span></td>
@@ -2009,17 +2588,43 @@
                     labels: items.map(i => i.label),
                     datasets: [{
                         data: items.map(i => i.value),
-                        backgroundColor: items.map(i => i.color),
-                        borderWidth: 0
+                        backgroundColor: items.map(i => i.color || '#10B981'),
+                        borderColor: '#141721',
+                        borderWidth: 3,
+                        hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12 } }
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                color: '#94A3B8', 
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                padding: 14,
+                                font: { size: 11, family: 'Inter' }
+                            } 
+                        },
+                        tooltip: {
+                            backgroundColor: '#1E2330',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            titleColor: '#F8FAFC',
+                            bodyColor: '#94A3B8',
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const val = context.raw || 0;
+                                    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                    return ` ${context.label}: ${formatNum(val)} (${pct}%)`;
+                                }
+                            }
+                        }
                     },
-                    cutout: '68%'
+                    cutout: '72%'
                 }
             });
         }
@@ -2027,26 +2632,75 @@
         function renderStockBalance(canvasId, items) {
             if (charts[canvasId]) charts[canvasId].destroy();
             const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Build gradient matching Revenue Overview from screenshot
+            const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
+            gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.04)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+
+            // Prepare labels and trend values (Physical On-Hand Stock run-rate across categories)
+            const labels = items.map(i => i.Category);
+            const dataVals = items.map(i => i.OH_Stock);
+
             charts[canvasId] = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
-                    labels: items.map(i => i.Category),
-                    datasets: [
-                        { label: 'Physical On-Hand', data: items.map(i => i.OH_Stock), backgroundColor: '#3B82F6' },
-                        { label: 'Open Sales Committed', data: items.map(i => i.Open_Sales), backgroundColor: '#F59E0B' },
-                        { label: 'Net ATP Stock', data: items.map(i => i.ATP_QTY), backgroundColor: '#10B981' },
-                        { label: 'Inbound Next Month', data: items.map(i => i.Inbound_Next_Month), backgroundColor: '#8B5CF6' }
-                    ]
+                    labels: labels,
+                    datasets: [{
+                        label: 'Inventory Run-rate',
+                        data: dataVals,
+                        borderColor: '#F8FAFC',
+                        borderWidth: 2.2,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.38,
+                        pointBackgroundColor: '#FFFFFF',
+                        pointBorderColor: '#0B0D13',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#FFFFFF',
+                        pointHoverBorderColor: '#FFFFFF',
+                        pointHoverBorderWidth: 3
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { ticks: { color: '#94A3B8' }, grid: { display: false } },
-                        y: { ticks: { color: '#94A3B8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                        x: {
+                            ticks: { color: '#94A3B8', font: { size: 11, family: 'Inter' } },
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: { 
+                                color: '#64748B',
+                                font: { size: 10, family: 'Inter' },
+                                callback: function(val) {
+                                    return val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val;
+                                }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            border: { dash: [4, 4] }
+                        }
                     },
                     plugins: {
-                        legend: { labels: { color: '#94A3B8', boxWidth: 12 } }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1E2330',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            titleColor: '#F8FAFC',
+                            bodyColor: '#94A3B8',
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(c) {
+                                    return `Stock: ${formatNum(c.raw)} units`;
+                                }
+                            }
+                        }
                     }
                 }
             });
@@ -2055,7 +2709,7 @@
         function renderCbmSpace(canvasId, dataObj) {
             if (charts[canvasId]) charts[canvasId].destroy();
             const ctx = document.getElementById(canvasId).getContext('2d');
-            const colors = ['#3B82F6', '#10B981', '#F59E0B'];
+            const colors = ['#E2E8F0', '#10B981', '#F59E0B'];
             const datasets = dataObj.series.map((s, idx) => ({
                 label: s.country,
                 data: s.values,
@@ -2089,7 +2743,7 @@
                 type: 'bubble',
                 data: {
                     datasets: items.map((it, idx) => {
-                        const colors = ['#38BDF8', '#818CF8', '#34D399', '#FBBF24', '#F472B6', '#A78BFA'];
+                        const colors = ['#E2E8F0', '#94A3B8', '#34D399', '#FBBF24', '#F472B6', '#A78BFA'];
                         return {
                             label: it.category,
                             data: [{ x: it.x, y: it.y, r: it.r }],
@@ -2245,7 +2899,7 @@
                 data: {
                     labels: items.map(i => i.Import_Local),
                     datasets: [
-                        { label: 'Total Inbound Value (SAR)', data: items.map(i => i.Total_Value), backgroundColor: '#3B82F6', borderRadius: 4 },
+                        { label: 'Total Inbound Value (SAR)', data: items.map(i => i.Total_Value), backgroundColor: '#E2E8F0', borderRadius: 4 },
                         { label: 'Delayed Value (SAR)', data: items.map(i => i.Delayed_Value), backgroundColor: '#F43F5E', borderRadius: 4 }
                     ]
                 },
@@ -2359,9 +3013,9 @@
             });
         }
 
-        // Initialize on page load
+        // Initialize on page load (do not auto-process; wait for user upload)
         document.addEventListener('DOMContentLoaded', () => {
-            fetchDashboard(false);
+            // Dashboard stays idle until files are uploaded
         });
     </script>
 </body>
