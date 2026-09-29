@@ -239,6 +239,17 @@ def process_unified_datasets(
                     if c in df_me2n.columns:
                         df_me2n[c] = pd.to_numeric(df_me2n[c], errors="coerce").fillna(0)
 
+                # Standard FX conversion to Kuwaiti Dinar (KD)
+                # KWD: 1.0, SAR: ~0.081, USD: ~0.307, EUR: ~0.33, AED: ~0.083
+                fx_to_kwd = {"KWD": 1.0, "KD": 1.0, "SAR": 0.081, "USD": 0.307, "EUR": 0.33, "AED": 0.083}
+                if "Currency" in df_me2n.columns:
+                    rates = df_me2n["Currency"].astype(str).str.strip().str.upper().map(fx_to_kwd).fillna(0.307)
+                    df_me2n["Still to be delivered (val_kd)"] = (df_me2n["Still to be delivered (value)"] * rates).round(2)
+                    df_me2n["Net Order Value KD"] = (df_me2n["Net Order Value"] * rates).round(2)
+                else:
+                    df_me2n["Still to be delivered (val_kd)"] = df_me2n["Still to be delivered (value)"]
+                    df_me2n["Net Order Value KD"] = df_me2n["Net Order Value"]
+
             # Join Lead Time & metadata from TIM (use raw_df_tim if present so Category isn't lost before filtering)
             tim_source = raw_df_tim if 'raw_df_tim' in locals() and raw_df_tim is not None else df_tim
             if "Lead Time" not in df_me2n.columns:
@@ -826,14 +837,16 @@ def process_unified_datasets(
     if df_me2n is not None and not df_me2n.empty:
         kpis["me2n_open_po_count"] = int(df_me2n["Purchasing Document"].nunique())
         kpis["me2n_open_qty"] = float(df_me2n["Still to be delivered (qty)"].sum())
-        # Convert non-SAR to approximate SAR equivalent for consolidated total if needed, or maintain spend by currency
-        kpis["me2n_committed_val"] = round(float(df_me2n["Still to be delivered (value)"].sum()), 2)
+        # Open PO value from ME2N converted to Kuwaiti Dinar (KD)
+        val_kd_col = "Still to be delivered (val_kd)" if "Still to be delivered (val_kd)" in df_me2n.columns else "Still to be delivered (value)"
+        kpis["me2n_committed_val_kd"] = round(float(df_me2n[val_kd_col].sum()), 2)
+        kpis["me2n_committed_val"] = kpis["me2n_committed_val_kd"]  # backwards-compat alias
 
-        # Chart 2.1: Forward Pipeline Month Buckets
+        # Chart 2.1: Forward Pipeline Month Buckets (with value in KD)
         charts["me2n_horizon_buckets"] = df_me2n.groupby("Pipeline_Month_Bucket").agg(
             POs=("Purchasing Document", "nunique"),
             Open_Qty=("Still to be delivered (qty)", "sum"),
-            Committed_Val=("Still to be delivered (value)", "sum")
+            Committed_Val=(val_kd_col, "sum")
         ).reset_index().to_dict("records")
 
         # Chart 2.2: Open Procurement Spend by Currency
@@ -952,16 +965,19 @@ def process_unified_datasets(
             me_po = df_me2n.groupby("Article_Key", as_index=False).agg(
                 ME2N_Open_PO_Qty=("Still to be delivered (qty)", "sum"),
                 ME2N_Open_PO_Value=("Still to be delivered (value)", "sum"),
+                ME2N_Open_PO_Val_KD=("Still to be delivered (val_kd)" if "Still to be delivered (val_kd)" in df_me2n.columns else "Still to be delivered (value)", "sum"),
                 Next_Projected_ATP=("Projected_ATP_Date", "min")
             )
             me_po["Next_Projected_ATP"] = me_po["Next_Projected_ATP"].dt.strftime("%Y-%m-%d").fillna("N/A")
             m_grouped = pd.merge(m_grouped, me_po, on="Article_Key", how="left")
             m_grouped["ME2N_Open_PO_Qty"] = m_grouped["ME2N_Open_PO_Qty"].fillna(0)
             m_grouped["ME2N_Open_PO_Value"] = m_grouped["ME2N_Open_PO_Value"].fillna(0)
+            m_grouped["ME2N_Open_PO_Val_KD"] = m_grouped["ME2N_Open_PO_Val_KD"].fillna(0)
             m_grouped["Next_Projected_ATP"] = m_grouped["Next_Projected_ATP"].fillna("N/A")
         else:
             m_grouped["ME2N_Open_PO_Qty"] = 0
             m_grouped["ME2N_Open_PO_Value"] = 0
+            m_grouped["ME2N_Open_PO_Val_KD"] = 0
             m_grouped["Next_Projected_ATP"] = "N/A"
 
         # Attach Manufacturing Shortage if available
@@ -1162,9 +1178,13 @@ def generate_master_excel_workbook(df_tim, df_me2n, df_fs, df_mb52, df_lines, df
             ).reset_index()
             t2.to_excel(writer, sheet_name="ATP_Threshold_Risk", index=False)
 
-        # Tab 3: Early Procurement Pipeline (ME2N + Projected ATP)
+        # Tab 3: Early Procurement Pipeline (ME2N + Projected ATP - in KD)
         if df_me2n is not None and not df_me2n.empty:
-            cols_me = ["Purchasing Document", "Document Date", "Name of Vendor", "Article", "ArticleDesc", "Order Quantity", "Still to be delivered (qty)", "Still to be delivered (value)", "Currency", "Lead Time", "Projected_ATP_Date", "Pipeline_Month_Bucket"]
+            cols_me = [
+                "Purchasing Document", "Document Date", "Name of Vendor", "Article", "ArticleDesc",
+                "Order Quantity", "Still to be delivered (qty)", "Still to be delivered (value)",
+                "Still to be delivered (val_kd)", "Currency", "Lead Time", "Projected_ATP_Date", "Pipeline_Month_Bucket"
+            ]
             valid_cols = [c for c in cols_me if c in df_me2n.columns]
             df_me2n[valid_cols].head(5000).to_excel(writer, sheet_name="Early_PO_Pipeline", index=False)
 

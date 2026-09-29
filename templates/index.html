@@ -1250,10 +1250,10 @@
             </div>
             <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
-                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Open POs Value (TIM Balance KD)</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); display: block; font-weight: 500;">Open POs Value (ME2N)</span>
                     <span id="kpiMe2nVal" style="font-size: 1.15rem; font-weight: 700; color: #FFFFFF;">--</span>
                 </div>
-                <span class="lead-pill lead-pill-warm">Balance KD Total</span>
+                <span class="lead-pill lead-pill-warm">ME2N in KD</span>
             </div>
             <div style="background: #10131B; border: 1px solid var(--border-card); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
                 <div>
@@ -2484,8 +2484,10 @@
             document.getElementById('kpiCBM').innerText = formatNum(k.total_cbm) + ' CBM';
             document.getElementById('kpiAtpRisk').innerText = formatNum(k.atp_cumulative_risk);
             
-            // TIM Balance KD Total (or ME2N committed value fallback)
-            const openPoVal = k.tim_open_po_val_kd !== undefined && k.tim_open_po_val_kd > 0 ? k.tim_open_po_val_kd : (k.me2n_committed_val || 0);
+            // Open PO value directly from ME2N in KD (as confirmed by client)
+            const openPoVal = (k.me2n_committed_val_kd !== undefined && k.me2n_committed_val_kd > 0) 
+                ? k.me2n_committed_val_kd 
+                : ((k.me2n_committed_val !== undefined && k.me2n_committed_val > 0) ? k.me2n_committed_val : (k.tim_open_po_val_kd || 0));
             document.getElementById('kpiMe2nVal').innerText = formatKD(openPoVal);
             
             document.getElementById('kpiDelayedVal').innerText = formatKD(k.logistics_capital_at_risk_kd || k.logistics_capital_at_risk_sar);
