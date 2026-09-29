@@ -127,16 +127,26 @@ def process_unified_datasets(
             if isinstance(file_tim, pd.DataFrame):
                 df_tim = file_tim.copy()
             else:
-                cols = [
-                    'Country', 'Article', 'ArticleDesc', 'Anchor Grouping', 'Category', 'Sub Category',
-                    'Vendor', 'Vendor Desc.', 'Lead Time', 'Country Sales Monthly Mean QTY',
-                    'Article Status - New', 'OH Stock', 'OH Value KD', 'OH CBM',
-                    'Open Sales QTY', 'ATP QTY', 'ATP Days', 'Inbound Curr', 'Inbound Curr+1'
-                ]
-                df_tim = pd.read_excel(file_tim, usecols=lambda c: str(c).strip() in cols)
+                df_tim = pd.read_excel(file_tim)
                 df_tim.columns = df_tim.columns.str.strip()
-                df_tim["Article_Key"] = sanitize_article(df_tim["Article"])
-                df_tim = normalize_categories(df_tim, "Category", "Article")
+                if "Article" in df_tim.columns:
+                    df_tim["Article_Key"] = sanitize_article(df_tim["Article"])
+                elif "Article_Key" in df_tim.columns:
+                    df_tim["Article_Key"] = sanitize_article(df_tim["Article_Key"])
+                else:
+                    df_tim["Article_Key"] = "UNKNOWN"
+
+                # Ensure common columns exist even if user file has slightly different or minimal set
+                for col_name, def_val in [
+                    ("Country", "Kuwait"), ("Category", "KITCHEN"), ("ArticleDesc", ""),
+                    ("OH Stock", 0), ("OH Value KD", 0), ("OH CBM", 0),
+                    ("Open Sales QTY", 0), ("ATP QTY", 0), ("Lead Time", 30),
+                    ("Article Status - New", "ACTIVE")
+                ]:
+                    if col_name not in df_tim.columns:
+                        df_tim[col_name] = def_val
+
+                df_tim = normalize_categories(df_tim, "Category", "Article" if "Article" in df_tim.columns else "Article_Key")
             
             # Numeric conversion
             num_cols = [

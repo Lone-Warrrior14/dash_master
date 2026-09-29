@@ -1336,38 +1336,38 @@
     <!-- Upload Datasets Modal -->
     <div class="modal" id="uploadModal">
         <div class="modal-card">
-            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">Upload Supply Chain Files</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">Upload fresh files to refresh the entire intelligence model.</p>
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">Upload Custom Supply Chain Datasets</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 18px;">Upload any updated or newly exported Excel files with identical headers. The platform automatically harmonizes new records, recalculates ATP forecasts, delays, and shortages.</p>
 
             <form id="uploadForm" onsubmit="handleUpload(event)">
                 <div class="upload-slot">
-                    <label>1. TIM Master (TIM 22092026.xlsx)</label>
+                    <label>1. TIM Master Catalog (Articles, Lead Times, OH Valuation, ATP)</label>
                     <input type="file" name="file_tim" accept=".xlsx,.xls">
                 </div>
                 <div class="upload-slot">
-                    <label>2. ME2N Open POs (me2n.XLSX) - Client Preferred</label>
+                    <label>2. ME2N Open POs (Purchasing Doc, Open Qty, Document Date)</label>
                     <input type="file" name="file_me2n" accept=".xlsx,.xls">
                 </div>
                 <div class="upload-slot">
-                    <label>3. Freight Status Report (Freight Status.XLSX)</label>
+                    <label>3. Freight Status Report (Container Tracking, Milestones & Delays)</label>
                     <input type="file" name="file_fs" accept=".xlsx,.xls">
                 </div>
                 <div class="upload-slot">
-                    <label>4. MB52 Warehouse Stock (mb52.XLSX)</label>
+                    <label>4. MB52 Warehouse Stock (Plant Inventory by Storage Bin Location)</label>
                     <input type="file" name="file_mb52" accept=".xlsx,.xls">
                 </div>
                 <div class="upload-slot">
-                    <label>5. PLNORDR Planned Orders (plnordr.XLSX)</label>
+                    <label>5. PLNORDR Planned Orders (MRP Planned Component Demand)</label>
                     <input type="file" name="file_pln" accept=".xlsx,.xls">
                 </div>
                 <div class="upload-slot">
-                    <label>6. PRDORDR Active Production (prdordr.XLSX)</label>
+                    <label>6. PRDORDR Active Production (Shop-Floor Work Orders)</label>
                     <input type="file" name="file_prd" accept=".xlsx,.xls">
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
                     <button type="button" class="btn-action btn-secondary" onclick="closeUploadModal()">Cancel</button>
-                    <button type="submit" class="btn-action btn-primary">Process All Files</button>
+                    <button type="submit" class="btn-action btn-primary">Process & Harmonize Data</button>
                 </div>
             </form>
         </div>
