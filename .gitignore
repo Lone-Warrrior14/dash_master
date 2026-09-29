@@ -19,10 +19,14 @@ dashboard_data.js
 
 # Data files & Archives
 *.xlsx
+*.XLSX
 *.xls
 *.csv
 *.zip
 *.log
+*.ogg
+*.mp3
+*.wav
 
 # OS files
 .DS_Store
